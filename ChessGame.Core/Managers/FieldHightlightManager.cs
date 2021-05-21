@@ -12,8 +12,9 @@ namespace ChessGame.Core
             IsClickerSwitcher(field);
             HighlightOneField(field);
             AssignPreviousClickedField(field);
-            SetEveryFieldStatateToEmpty(field, fieldsList);
+            SetEveryFieldStatateToEmpty( fieldsList);
             ShowFiguresAllowedMoves(field, fieldsList);
+            //Debug.WriteLine($"old field: {mOldClickedField.FieldState}");
         }
         private void IsClickerSwitcher(IField clickedField) => clickedField.IsClicked = !clickedField.IsClicked;
         private void AssignPreviousClickedField(IField clickedField) => mOldClickedField = clickedField;
@@ -25,7 +26,7 @@ namespace ChessGame.Core
                 mOldClickedField.IsClicked = false;
             }
         }
-        private void SetEveryFieldStatateToEmpty(IField clickedField, ObservableCollection<IField> fieldsList)
+        private void SetEveryFieldStatateToEmpty(ObservableCollection<IField> fieldsList)
         {
             foreach (var field in fieldsList.Where(x => x.FieldState == FieldState.MoveState).ToList())
             {

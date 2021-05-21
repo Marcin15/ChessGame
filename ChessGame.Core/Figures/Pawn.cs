@@ -85,12 +85,15 @@ namespace ChessGame.Core
         }
         public override void Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
         {
-            base.Move(clickedFigure, clickedField, allowedMoves);
-            clickedField.FigureImageSource = mImageUri;
-            clickedFigure.FigureImageSource = defaultImageSource;
+            if (clickedField.FieldState == FieldState.MoveState)
+            {
+                base.Move(clickedFigure, clickedField, allowedMoves);
+                clickedField.FigureImageSource = mImageUri;
+                clickedFigure.FigureImageSource = defaultImageSource;
 
-            if (!mIsMoved)
-                mIsMoved = true;
+                if (!mIsMoved)
+                    mIsMoved = true;
+            }
         }
     }
 }

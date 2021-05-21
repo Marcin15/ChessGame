@@ -9,6 +9,7 @@
     
     <UserControl.Resources>
         <local:FieldStateToBackgroundLightConverter x:Key="FieldStateToBackgroundLightConverter" />
+        <local:FieldStateToCircleVisibility x:Key="FieldStateToCircleVisibility" />
     </UserControl.Resources>
     <Grid>
         <Button Background="{Binding FieldState, Converter={StaticResource FieldStateToBackgroundLightConverter}}"
@@ -17,7 +18,13 @@
                 Command="{Binding DataContext.ClickCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                 CommandParameter="{Binding}">
             <Button.Content>
-                <Image Source="{Binding FigureImageSource}"/>
+                <Grid>
+                    <Image Source="{Binding FigureImageSource}" />
+                    <Ellipse Width="30" Height="30"
+                         Fill="Black"
+                         Opacity="0.3"
+                         Visibility="{Binding FieldState, Converter={StaticResource FieldStateToCircleVisibility}}"/>
+                </Grid>
             </Button.Content>
         </Button>
     </Grid>
