@@ -21,12 +21,12 @@ namespace ChessGame.Core
             {
                 mOldClickedFigure = clickedField;
             }
-            if (!clickedField.IsClicked)
+            if (clickedField.IsClicked)
                 mOldClickedFigure = null;
         }
         private void MoveFigure(IField field, ObservableCollection<IField> fieldsList)
         {
-            if(mOldClickedFigure is not null && 
+            if (mOldClickedFigure is not null && 
                 field.CurrentFigure is not Figure && 
                 mOldClickedFigure.CurrentFigure is Figure)
             {

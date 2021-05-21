@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Input;
 
 namespace ChessGame.Core
@@ -19,8 +20,9 @@ namespace ChessGame.Core
         public void Click(object obj)
         {
             var fieldVM = obj as IField;
-            mFieldHightlightManager.Container(fieldVM, FieldsList);
+            //Debug.WriteLine($"current field (main): {fieldVM.FieldState}");
             mFigureInteractionManager.Container(fieldVM, FieldsList);
+            mFieldHightlightManager.Container(fieldVM, FieldsList);
         }
     }
 }

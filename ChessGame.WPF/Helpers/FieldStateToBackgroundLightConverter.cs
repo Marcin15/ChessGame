@@ -15,14 +15,12 @@ namespace ChessGame
             SolidColorBrush moveColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#123123");
 
             FieldState state = (FieldState)value;
-            if (state == FieldState.EmptyState)
-                return defaultColor;
-            else if (state == FieldState.ClickedState)
+            if (state == FieldState.ClickedState)
                 return clickedColor;
-            else if (state == FieldState.MoveState)
-                return moveColor;
+            //else if (state == FieldState.MoveState)
+            //    return moveColor;
             else
-                return null;
+                return defaultColor;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

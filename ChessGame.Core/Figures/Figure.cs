@@ -19,24 +19,11 @@ namespace ChessGame.Core
             clickedField.CurrentFigure = clickedFigure.CurrentFigure;
             clickedFigure.CurrentFigure = null;
 
-            clickedField.IsClicked = false;
+            clickedField.IsClicked = true;
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
         public abstract ObservableCollection<IField> AllowedMoves(IField clickedFigure, ObservableCollection<IField> chessboardFields);
     }
-    //protected bool CheckAlloweMove(IField clickedField, ObservableCollection<IField> allowedMoves)
-    //{
-    //    foreach (var field in allowedMoves)
-    //    {
-    //        if (clickedField.RowIndex == )
-    //        {
-    //            return true;
-    //        }
-    //    }
-    //    return false;
-    //}
-
-
 }
