@@ -5,6 +5,8 @@
         EmptyState,
         ClickedState,
         MoveState,
+        AttackState,
+        CaptureState,
         CheckState,
         MateState
     }

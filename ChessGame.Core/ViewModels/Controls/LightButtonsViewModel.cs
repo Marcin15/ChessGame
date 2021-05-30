@@ -52,7 +52,7 @@ namespace ChessGame.Core
         public int RowIndex { get; set; }
         public int ColumnIndex { get; set; }
         public Figure CurrentFigure { get; set; } = null;
-
+        public bool IsUnderAttack { get; set; } = false;
         public LightButtonsViewModel()
         {
             mFigureImageSource = new Uri(@"/Images/Default.png", UriKind.Relative);

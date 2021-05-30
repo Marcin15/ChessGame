@@ -10,5 +10,6 @@ namespace ChessGame.Core
         int ColumnIndex { get; set; }
         public Uri FigureImageSource { get; set; }
         public Figure CurrentFigure { get; set; }
+        public bool IsUnderAttack { get; set; }
     }
 }

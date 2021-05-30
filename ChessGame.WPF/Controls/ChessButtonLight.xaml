@@ -5,11 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ChessGame"
              mc:Ignorable="d" 
-             d:DesignHeight="70" d:DesignWidth="70" d:Background="White">
+             d:DesignHeight="100" d:DesignWidth="100" d:Background="White">
     
     <UserControl.Resources>
         <local:FieldStateToBackgroundLightConverter x:Key="FieldStateToBackgroundLightConverter" />
-        <local:FieldStateToCircleVisibility x:Key="FieldStateToCircleVisibility" />
+        <local:FieldStateToDotVisibilityConverter x:Key="FieldStateToDotVisibilityConverter" />
+        <local:FieldStateToCircleWithHoleConverter x:Key="FieldStateToCircleWithHoleConverter" />
     </UserControl.Resources>
     <Grid>
         <Button Background="{Binding FieldState, Converter={StaticResource FieldStateToBackgroundLightConverter}}"
@@ -21,9 +22,16 @@
                 <Grid>
                     <Image Source="{Binding FigureImageSource}" />
                     <Ellipse Width="30" Height="30"
-                         Fill="Black"
-                         Opacity="0.3"
-                         Visibility="{Binding FieldState, Converter={StaticResource FieldStateToCircleVisibility}}"/>
+                             Fill="Black"
+                             Opacity="0.3"
+                             Visibility="{Binding FieldState, Converter={StaticResource FieldStateToDotVisibilityConverter}}"/>
+                    <Ellipse Width="80" Height="80"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Stroke="Black"
+                             Opacity="0.3"
+                             StrokeThickness="5" 
+                             Fill="Transparent"
+                             Visibility="{Binding FieldState, Converter={StaticResource FieldStateToCircleWithHoleConverter}}"/>
                 </Grid>
             </Button.Content>
         </Button>

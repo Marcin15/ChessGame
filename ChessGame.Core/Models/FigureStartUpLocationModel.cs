@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChessGame.Core
 {
-    public class FigureStartUpLocationModel
+    public sealed class FigureStartUpLocationModel
     {
         public static FiguresStartUpLocation[] startUpLocations =
         {
@@ -40,7 +40,7 @@ namespace ChessGame.Core
             new FiguresStartUpLocation(6,4, Player.White, typeof(Pawn).Name),
             new FiguresStartUpLocation(6,5, Player.White, typeof(Pawn).Name),
             new FiguresStartUpLocation(6,6, Player.White, typeof(Pawn).Name),
-            new FiguresStartUpLocation(6,7, Player.White, typeof(Pawn).Name),
+            new FiguresStartUpLocation(6,7, Player.White, typeof(Pawn).Name)
         };
     }
 }

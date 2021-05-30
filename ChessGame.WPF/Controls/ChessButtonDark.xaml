@@ -8,7 +8,8 @@
              d:DesignHeight="70" d:DesignWidth="70" d:Background="White">
     <UserControl.Resources>
         <local:FieldStateToBackgroundDarkConverter x:Key="FieldStateToBackgroundDarkConverter" />
-        <local:FieldStateToCircleVisibility x:Key="FieldStateToCircleVisibility" />
+        <local:FieldStateToDotVisibilityConverter x:Key="FieldStateToDotVisibilityConverter" />
+        <local:FieldStateToCircleWithHoleConverter x:Key="FieldStateToCircleWithHoleConverter" />
     </UserControl.Resources>
     <Grid>
         <Button Background="{Binding FieldState, Converter={StaticResource FieldStateToBackgroundDarkConverter}}"
@@ -22,7 +23,14 @@
                 <Ellipse Width="30" Height="30"
                          Fill="Black"
                          Opacity="0.3"
-                         Visibility="{Binding FieldState, Converter={StaticResource FieldStateToCircleVisibility}}"/>
+                         Visibility="{Binding FieldState, Converter={StaticResource FieldStateToDotVisibilityConverter}}"/>
+                    <Ellipse Width="75" Height="75" 
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Stroke="Black"
+                             Opacity="0.3"
+                             StrokeThickness="6" 
+                             Fill="Transparent"
+                             Visibility="{Binding FieldState, Converter={StaticResource FieldStateToCircleWithHoleConverter}}"/>
                 </Grid>
             </Button.Content>
         </Button>

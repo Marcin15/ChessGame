@@ -8,12 +8,13 @@ using System.Windows.Data;
 
 namespace ChessGame
 {
-    public class FieldStateToCircleVisibility : IValueConverter
+    public class FieldStateToCircleWithHoleConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             FieldState state = (FieldState)value;
-            if (state == FieldState.MoveState)
+
+            if (state == FieldState.CaptureState)
                 return Visibility.Visible;
             else
                 return Visibility.Hidden;

@@ -4,17 +4,16 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class FieldHightlightManager : IManager
+    public class FieldHightlightManager
     {
         private IField mOldClickedField;
-        public void Container(IField field, ObservableCollection<IField> fieldsList)
+        public void Container(IField field, ObservableCollection<IField> fieldsList, Player currentPlayer)
         {
             IsClickerSwitcher(field);
             HighlightOneField(field);
             AssignPreviousClickedField(field);
             SetEveryFieldStatateToEmpty( fieldsList);
-            ShowFiguresAllowedMoves(field, fieldsList);
-            //Debug.WriteLine($"old field: {mOldClickedField.FieldState}");
+            ShowFiguresAllowedMoves(field, fieldsList, currentPlayer);
         }
         private void IsClickerSwitcher(IField clickedField) => clickedField.IsClicked = !clickedField.IsClicked;
         private void AssignPreviousClickedField(IField clickedField) => mOldClickedField = clickedField;
@@ -28,14 +27,14 @@ namespace ChessGame.Core
         }
         private void SetEveryFieldStatateToEmpty(ObservableCollection<IField> fieldsList)
         {
-            foreach (var field in fieldsList.Where(x => x.FieldState == FieldState.MoveState).ToList())
+            foreach (var field in fieldsList.Where(x => x.FieldState == FieldState.MoveState || x.FieldState == FieldState.CaptureState).ToList())
             {
                 field.FieldState = FieldState.EmptyState;
             }
         }
-        private void ShowFiguresAllowedMoves(IField field, ObservableCollection<IField> fieldsList)
+        private void ShowFiguresAllowedMoves(IField field, ObservableCollection<IField> fieldsList, Player currentPlayer)
         {
-            if (field.CurrentFigure is Figure && field.IsClicked)
+            if (field.CurrentFigure is Figure && field.IsClicked && field.CurrentFigure.Player == currentPlayer)
             {
                 field.CurrentFigure.AllowedMoves(field, fieldsList);
             }

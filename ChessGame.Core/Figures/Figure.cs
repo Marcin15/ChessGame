@@ -8,13 +8,13 @@ namespace ChessGame.Core
     {
         protected Uri defaultImageSource = new Uri(@"/Images/Default.png", UriKind.Relative);
 
-        private Player mPlayer;
+        public Player Player { get; private set; }
         public Figure(Player player, IField clickedField)
         {
-            mPlayer = player;
+            this.Player = player;
             clickedField.CurrentFigure = this;
         }
-        virtual public void Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
+        virtual public bool Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
         {
             clickedField.CurrentFigure = clickedFigure.CurrentFigure;
             clickedFigure.CurrentFigure = null;
@@ -23,7 +23,9 @@ namespace ChessGame.Core
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
+
+            return false;
         }
-        public abstract ObservableCollection<IField> AllowedMoves(IField clickedFigure, ObservableCollection<IField> chessboardFields);
+        public abstract void AllowedMoves(IField clickedFigure, ObservableCollection<IField> fieldsList);
     }
 }
