@@ -10,7 +10,7 @@ namespace ChessGame.Core
     {
         private Player mPlayer;
         private Uri mImageUri;
-        private bool mIsMoved = false;
+        public bool IsMoved { get; set; } = false;
 
         private readonly Uri BlackFigureImageSource = new Uri(@"/Images/RookBlack.png", UriKind.Relative);
         private readonly Uri WhiteFigureImageSource = new Uri(@"/Images/RookWhite.png", UriKind.Relative);
@@ -92,8 +92,8 @@ namespace ChessGame.Core
                 clickedField.FigureImageSource = mImageUri;
                 clickedFigure.FigureImageSource = defaultImageSource;
 
-                if (!mIsMoved)
-                    mIsMoved = true;
+                if (!this.IsMoved)
+                    this.IsMoved = true;
 
                 return true;
             }

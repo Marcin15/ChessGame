@@ -6,16 +6,16 @@ namespace ChessGame.Core
 {
     public class FieldUnderAttackChecker
     {
-        public void Container(ObservableCollection<IField> fieldsList, Player currentPlayer)
+        public void Container(ObservableCollection<IField> fieldsList)
         {
             ClearUnderAttackFlag(fieldsList);
 
-            PawnFieldUnderAttack(fieldsList, currentPlayer);
-            RookFieldUnderAttack(fieldsList, currentPlayer);
-            KnightFieldUnderAttack(fieldsList, currentPlayer);
-            BishopFieldUnderAttack(fieldsList, currentPlayer);
-            QueenFieldUnderAttack(fieldsList, currentPlayer);
-            KingFieldUnderAttack(fieldsList, currentPlayer);
+            PawnFieldUnderAttack(fieldsList);
+            RookFieldUnderAttack(fieldsList);
+            KnightFieldUnderAttack(fieldsList);
+            BishopFieldUnderAttack(fieldsList);
+            QueenFieldUnderAttack(fieldsList);
+            KingFieldUnderAttack(fieldsList);
         }
 
         private void ClearUnderAttackFlag(ObservableCollection<IField> fieldsList)
@@ -24,10 +24,10 @@ namespace ChessGame.Core
                 field.IsUnderAttack = false;
         }
 
-        private void PawnFieldUnderAttack(ObservableCollection<IField> fieldsList, Player currentPlayer)
+        private void PawnFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
 
-            foreach (var pawn in fieldsList.Where(x => x.CurrentFigure is Pawn && x.CurrentFigure.Player == currentPlayer).ToList())
+            foreach (var pawn in fieldsList.Where(x => x.CurrentFigure is Pawn && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
             {
                 Point[] pointsAttackMoves = null;
 
@@ -63,9 +63,9 @@ namespace ChessGame.Core
             }
         }
 
-        private void RookFieldUnderAttack(ObservableCollection<IField> fieldsList, Player currentPlayer)
+        private void RookFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var rook in fieldsList.Where(x => x.CurrentFigure is Rook && x.CurrentFigure.Player == currentPlayer).ToList())
+            foreach (var rook in fieldsList.Where(x => x.CurrentFigure is Rook && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
             {
                 List<Point> alloweMovesList = new List<Point>();
 
@@ -98,25 +98,16 @@ namespace ChessGame.Core
                         {
                             if (moveField.CurrentFigure == null)
                                 fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                          .Select(x => x.FieldState = FieldState.MoveState)
+                                          .Select(x => x.IsUnderAttack = true)
                                           .FirstOrDefault();
                             else
                             {
-                                if (moveField.CurrentFigure.Player == rook.CurrentFigure.Player)
-                                {
-                                    alloweMovesList.Clear();
-                                    break;
-                                }
-                                else
-                                {
-                                    fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                              .Select(x => x.FieldState = FieldState.CaptureState)
-                                              .FirstOrDefault();
+                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                                            .Select(x => x.IsUnderAttack = true)
+                                            .FirstOrDefault();
 
-                                    alloweMovesList.Clear();
-                                    break;
-                                }
-
+                                alloweMovesList.Clear();
+                                break;
                             }
                         }
                     }
@@ -124,9 +115,9 @@ namespace ChessGame.Core
             }
         }
 
-        private void KnightFieldUnderAttack(ObservableCollection<IField> fieldsList, Player currentPlayer)
+        private void KnightFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var knight in fieldsList.Where(x => x.CurrentFigure is Knight && x.CurrentFigure.Player == currentPlayer).ToList())
+            foreach (var knight in fieldsList.Where(x => x.CurrentFigure is Knight && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
             {
                 var allowedMovesList = new List<Point>
                 {
@@ -147,32 +138,18 @@ namespace ChessGame.Core
 
                     if (attackField is not null)
                     {
-                        if (attackField.CurrentFigure == null)
-                        {
-                            fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
-                                          .Select(x => x.IsUnderAttack = true)
-                                          .FirstOrDefault();
-                        }
-                        else
-                        {
-                            if (attackField.CurrentFigure.Player == knight.CurrentFigure.Player)
-                                continue;
-                            else
-                            {
-                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
-                                      .Select(x => x.IsUnderAttack = true)
-                                      .FirstOrDefault();
-                            }
-                        }
+                        fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
+                                        .Select(x => x.IsUnderAttack = true)
+                                        .FirstOrDefault();
                     }
                 }
 
             }
         }
 
-        private void BishopFieldUnderAttack(ObservableCollection<IField> fieldsList, Player currentPlayer)
+        private void BishopFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var bishop in fieldsList.Where(x => x.CurrentFigure is Bishop && x.CurrentFigure.Player == currentPlayer).ToList())
+            foreach (var bishop in fieldsList.Where(x => x.CurrentFigure is Bishop && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
             {
                 List<Point> alloweMovesList = new List<Point>();
 
@@ -204,37 +181,21 @@ namespace ChessGame.Core
 
                         if (attackField is not null)
                         {
-                            if (attackField.CurrentFigure == null)
-                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
-                                          .Select(x => x.IsUnderAttack = true)
-                                          .FirstOrDefault();
-                            else
-                            {
-                                if (attackField.CurrentFigure.Player == bishop.CurrentFigure.Player)
-                                {
-                                    alloweMovesList.Clear();
-                                    break;
-                                }
-                                else
-                                {
-                                    fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
-                                              .Select(x => x.IsUnderAttack = true)
-                                              .FirstOrDefault();
+                            fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
+                                        .Select(x => x.IsUnderAttack = true)
+                                        .FirstOrDefault();
 
-                                    alloweMovesList.Clear();
-                                    break;
-                                }
-
-                            }
+                            alloweMovesList.Clear();
+                            break;
                         }
                     }
                 }
             }
         }
 
-        private void QueenFieldUnderAttack(ObservableCollection<IField> fieldsList, Player currentPlayer)
+        private void QueenFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var queen in fieldsList.Where(x => x.CurrentFigure is Queen && x.CurrentFigure.Player == currentPlayer).ToList())
+            foreach (var queen in fieldsList.Where(x => x.CurrentFigure is Queen && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
             {
                 List<Point> alloweMovesList = new List<Point>();
 
@@ -283,21 +244,12 @@ namespace ChessGame.Core
                                           .FirstOrDefault();
                             else
                             {
-                                if (moveField.CurrentFigure.Player == queen.CurrentFigure.Player)
-                                {
-                                    alloweMovesList.Clear();
-                                    break;
-                                }
-                                else
-                                {
-                                    fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                              .Select(x => x.IsUnderAttack = true)
-                                              .FirstOrDefault();
+                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                                            .Select(x => x.IsUnderAttack = true)
+                                            .FirstOrDefault();
 
-                                    alloweMovesList.Clear();
-                                    break;
-                                }
-
+                                alloweMovesList.Clear();
+                                break;
                             }
                         }
                     }
@@ -305,9 +257,9 @@ namespace ChessGame.Core
             }
         }
 
-        private void KingFieldUnderAttack(ObservableCollection<IField> fieldsList, Player currentPlayer)
+        private void KingFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var king in fieldsList.Where(x => x.CurrentFigure is King && x.CurrentFigure.Player == currentPlayer).ToList())
+            foreach (var king in fieldsList.Where(x => x.CurrentFigure is King && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
             {
                 var allowedMovesList = new List<Point>
             {
@@ -328,23 +280,9 @@ namespace ChessGame.Core
 
                     if (moveField is not null)
                     {
-                        if (moveField.CurrentFigure == null)
-                        {
-                            fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                          .Select(x => x.IsUnderAttack = true)
-                                          .FirstOrDefault();
-                        }
-                        else
-                        {
-                            if (moveField.CurrentFigure.Player == king.CurrentFigure.Player)
-                                continue;
-                            else
-                            {
-                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                      .Select(x => x.IsUnderAttack = true)
-                                      .FirstOrDefault();
-                            }
-                        }
+                        fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                                        .Select(x => x.IsUnderAttack = true)
+                                        .FirstOrDefault();
                     }
                 }
             }

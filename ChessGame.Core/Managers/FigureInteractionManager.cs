@@ -4,18 +4,17 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class FigureInteractionManager
+    public class FigureInteractionManager : IManager
     {
         private IField mOldClickedFigure;
         private bool mTestBoolVar = false;
         private FieldUnderAttackChecker attackChecker = new FieldUnderAttackChecker();
-        public Player CurrentPlayer { get; set; } = Player.White;
         public void Container(IField clickedField, ObservableCollection<IField> fieldsList)
         {
             AssignPreviousClickedFigure(clickedField);
             if(MoveFigure(clickedField, fieldsList))
             {
-                attackChecker.Container(fieldsList, this.CurrentPlayer);
+                attackChecker.Container(fieldsList);
                 ChangePlayer();
             }
             //if(MoveFigure(clickedField, fieldsList) && mTestBoolVar)
@@ -25,15 +24,15 @@ namespace ChessGame.Core
 
         private void ChangePlayer() 
         {
-            if (this.CurrentPlayer == Player.White)
-                this.CurrentPlayer = Player.Black;
-            else if (this.CurrentPlayer == Player.Black)
-                this.CurrentPlayer = Player.White;
+            if (GameStatus.CurrentPlayer == Player.White)
+                GameStatus.CurrentPlayer = Player.Black;
+            else if (GameStatus.CurrentPlayer == Player.Black)
+                GameStatus.CurrentPlayer = Player.White;
         }
 
         private void AssignPreviousClickedFigure(IField clickedField)
         {
-            if (clickedField.CurrentFigure is Figure && clickedField.CurrentFigure.Player == CurrentPlayer)
+            if (clickedField.CurrentFigure is Figure && clickedField.CurrentFigure.Player == GameStatus.CurrentPlayer)
             {
                 mOldClickedFigure = clickedField;
             }
@@ -57,7 +56,7 @@ namespace ChessGame.Core
             if (mOldClickedFigure is not null &&
                 mOldClickedFigure.CurrentFigure is Figure &&
                 clickedField != mOldClickedFigure &&
-                mOldClickedFigure.CurrentFigure.Player == this.CurrentPlayer)
+                mOldClickedFigure.CurrentFigure.Player == GameStatus.CurrentPlayer)
             {
                 if (mOldClickedFigure.CurrentFigure.Move(mOldClickedFigure, clickedField, fieldsList))
                 {
