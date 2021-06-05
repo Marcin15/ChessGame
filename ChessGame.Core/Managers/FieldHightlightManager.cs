@@ -34,9 +34,9 @@ namespace ChessGame.Core
         }
         private void ShowFiguresAllowedMoves(IField field, ObservableCollection<IField> fieldsList)
         {
-            if (field.CurrentFigure is Figure && field.IsClicked && field.CurrentFigure.Player == GameStatus.CurrentPlayer)
+            if (field.CurrentFigure is Figure && field.IsClicked && field.CurrentFigure.Player == GameInfo.CurrentPlayer)
             {
-                field.CurrentFigure.AllowedMoves(field, fieldsList);
+                field.CurrentFigure.GetAllowedMovesOfCurrentClickedFigure(field, fieldsList);
             }
         }
     }

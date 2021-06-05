@@ -8,31 +8,26 @@ namespace ChessGame.Core
     {
         private IField mOldClickedFigure;
         private bool mTestBoolVar = false;
-        private FieldUnderAttackChecker attackChecker = new FieldUnderAttackChecker();
+        private readonly FieldUnderAttackChecker mAttackChecker = new FieldUnderAttackChecker();
         public void Container(IField clickedField, ObservableCollection<IField> fieldsList)
         {
             AssignPreviousClickedFigure(clickedField);
             if(MoveFigure(clickedField, fieldsList))
             {
-                attackChecker.Container(fieldsList);
+                mAttackChecker.Container(fieldsList);
                 ChangePlayer();
+                //mCheckCheker.Container(fieldsList);
             }
             //if(MoveFigure(clickedField, fieldsList) && mTestBoolVar)
             //SetPawnPassingToFalse(fieldsList);
             //SetBool();
         }
 
-        private void ChangePlayer() 
-        {
-            if (GameStatus.CurrentPlayer == Player.White)
-                GameStatus.CurrentPlayer = Player.Black;
-            else if (GameStatus.CurrentPlayer == Player.Black)
-                GameStatus.CurrentPlayer = Player.White;
-        }
+        private void ChangePlayer() => GameInfo.CurrentPlayer = (GameInfo.CurrentPlayer == Player.White) ? Player.Black : Player.White;
 
         private void AssignPreviousClickedFigure(IField clickedField)
         {
-            if (clickedField.CurrentFigure is Figure && clickedField.CurrentFigure.Player == GameStatus.CurrentPlayer)
+            if (clickedField.CurrentFigure is Figure && clickedField.CurrentFigure.Player == GameInfo.CurrentPlayer)
             {
                 mOldClickedFigure = clickedField;
             }
@@ -40,7 +35,7 @@ namespace ChessGame.Core
                 mOldClickedFigure = null;
         }
 
-        private void SetPawnPassingToFalse(ObservableCollection<IField> fieldsList)
+        private void SetPawnsPassingFlagToFalse(ObservableCollection<IField> fieldsList)
         {
             foreach (var pawn in fieldsList.Where(x => x.CurrentFigure is Pawn).ToList())
             {
@@ -49,21 +44,20 @@ namespace ChessGame.Core
             }
         }
 
-        private void SetBool() => mTestBoolVar = !mTestBoolVar;
+        private void SomeMethod() => mTestBoolVar = !mTestBoolVar;
 
         private bool MoveFigure(IField clickedField, ObservableCollection<IField> fieldsList)
         {
             if (mOldClickedFigure is not null &&
                 mOldClickedFigure.CurrentFigure is Figure &&
                 clickedField != mOldClickedFigure &&
-                mOldClickedFigure.CurrentFigure.Player == GameStatus.CurrentPlayer)
+                mOldClickedFigure.CurrentFigure.Player == GameInfo.CurrentPlayer)
             {
                 if (mOldClickedFigure.CurrentFigure.Move(mOldClickedFigure, clickedField, fieldsList))
                 {
                     mOldClickedFigure = null;
                     return true;
                 }
-                else return false;
             }
             return false;
         }

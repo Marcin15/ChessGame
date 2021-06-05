@@ -11,5 +11,6 @@ namespace ChessGame.Core
         public Uri FigureImageSource { get; set; }
         public Figure CurrentFigure { get; set; }
         public bool IsUnderAttack { get; set; }
+        public bool IsUnderCheck { get; set; }
     }
 }

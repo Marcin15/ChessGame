@@ -26,9 +26,10 @@ namespace ChessGame.Core
             clickedField.FigureImageSource = mImageUri;
         }
 
-        public override void AllowedMoves(IField clickedFigure, ObservableCollection<IField> fieldsList)
+        public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
             List<Point> alloweMovesList = new List<Point>();
+            var checkCondition = false;
 
             for (int i = 0; i < 4; i++)
             {
@@ -55,31 +56,18 @@ namespace ChessGame.Core
                     var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
                                               .FirstOrDefault();
 
-                    if (moveField is not null)
-                    {
-                        if (moveField.CurrentFigure == null)
-                            fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                      .Select(x => x.FieldState = FieldState.MoveState)
-                                      .FirstOrDefault();
-                        else
+
+                    if (GameInfo.Check)
+                        checkCondition = moveField is not null && moveField.IsUnderCheck;
+                    else
+                        checkCondition = true;
+
+                    if (checkCondition && moveField is not null)
+                        if (GetAllowedMoves(clickedFigure, fieldsList, moveField))
                         {
-                            if (moveField.CurrentFigure.Player == clickedFigure.CurrentFigure.Player)
-                            {
-                                alloweMovesList.Clear();
-                                break;
-                            }
-                            else
-                            {
-                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                          .Select(x => x.FieldState = FieldState.CaptureState)
-                                          .FirstOrDefault();
-
-                                alloweMovesList.Clear();
-                                break;
-                            }
-
+                            alloweMovesList.Clear();
+                            break;
                         }
-                    }
                 }
             }
         }

@@ -23,8 +23,9 @@ namespace ChessGame.Core
             clickedField.FigureImageSource = mImageUri;
         }
 
-        public override void AllowedMoves(IField clickedFigure, ObservableCollection<IField> fieldsList)
+        public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
+            var checkCondition = false;
             var allowedMovesList = new List<Point>
             {
                 new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex + 2), //1
@@ -42,26 +43,14 @@ namespace ChessGame.Core
                 var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
                                           .FirstOrDefault();
 
-                if (moveField is not null)
-                {
-                    if (moveField.CurrentFigure == null)
-                    {
-                        fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                      .Select(x => x.FieldState = FieldState.MoveState)
-                                      .FirstOrDefault();
-                    }
-                    else
-                    {
-                        if (moveField.CurrentFigure.Player == clickedFigure.CurrentFigure.Player)
-                            continue;
-                        else
-                        {
-                            fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                  .Select(x => x.FieldState = FieldState.CaptureState)
-                                  .FirstOrDefault();
-                        }
-                    }
-                }
+
+                if (GameInfo.Check)
+                    checkCondition = moveField is not null && moveField.IsUnderCheck;
+                else
+                    checkCondition = true;
+
+                if (checkCondition && moveField is not null)
+                    GetAllowedMoves(clickedFigure, fieldsList, moveField);
             }
         }
         public override bool Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)

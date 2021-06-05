@@ -25,7 +25,7 @@ namespace ChessGame.Core
             clickedField.FigureImageSource = mImageUri;
         }
 
-        public override void AllowedMoves(IField clickedFigure, ObservableCollection<IField> fieldsList)
+        public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
             var allowedMovesList = new List<Point>
             {
@@ -79,15 +79,23 @@ namespace ChessGame.Core
             var knightField = fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 6).FirstOrDefault();
             var rookField = fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 7).FirstOrDefault();
             var rook = rookField.CurrentFigure as Rook;
-            if (!rook.IsMoved &&
-                bishopField.CurrentFigure == null &&
-                knightField.CurrentFigure == null)
-            {
-                fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 6)
-                            .Select(x => x.FieldState = FieldState.MoveState)
-                            .FirstOrDefault();
 
-                mCanCastle = true;
+            if(rook is not null)
+            {
+                if (!rook.IsMoved &&
+                    bishopField.CurrentFigure == null &&
+                    knightField.CurrentFigure == null &&
+                    !rookField.IsUnderAttack &&
+                    !knightField.IsUnderAttack &&
+                    !bishopField.IsUnderAttack &&
+                    !GameInfo.Check)
+                {
+                    fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 6)
+                                .Select(x => x.FieldState = FieldState.MoveState)
+                                .FirstOrDefault();
+
+                    mCanCastle = true;
+                }
             }
         }
 
@@ -99,16 +107,25 @@ namespace ChessGame.Core
             var knightField = fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 1).FirstOrDefault();
             var rookField = fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 0).FirstOrDefault();
             var rook = rookField.CurrentFigure as Rook;
-            if (!rook.IsMoved &&
-                queenField.CurrentFigure == null &&
-                bishopField.CurrentFigure == null &&
-                knightField.CurrentFigure == null)
-            {
-                fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 2)
-                            .Select(x => x.FieldState = FieldState.MoveState)
-                            .FirstOrDefault();
 
-                mCanCastle = true;
+            if(rook is not null)
+            {
+                if (!rook.IsMoved &&
+                    queenField.CurrentFigure == null &&
+                    bishopField.CurrentFigure == null &&
+                    knightField.CurrentFigure == null &&
+                    !rookField.IsUnderAttack &&
+                    !knightField.IsUnderAttack &&
+                    !bishopField.IsUnderAttack &&
+                    !queenField.IsUnderAttack &&
+                    !GameInfo.Check)
+                {
+                    fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 2)
+                                .Select(x => x.FieldState = FieldState.MoveState)
+                                .FirstOrDefault();
+
+                    mCanCastle = true;
+                }
             }
         }
 
@@ -125,20 +142,20 @@ namespace ChessGame.Core
         private void ShortCastleMove(int rowIndex, ObservableCollection<IField> allowedMoves)
         {
             var rookField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 7).FirstOrDefault();
-            var newRookField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 5).FirstOrDefault();
+            var bishopField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 5).FirstOrDefault();
 
             var rook = rookField.CurrentFigure as Rook;
-            rook.Move(rookField, newRookField, allowedMoves);
-            newRookField.IsClicked = false;
+            rook.Move(rookField, bishopField, allowedMoves);
+            bishopField.IsClicked = false;
         }
         private void LongCastleMove(int rowIndex, ObservableCollection<IField> allowedMoves)
         {
             var rookField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 0).FirstOrDefault();
-            var newRookField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 3).FirstOrDefault();
+            var queenField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 3).FirstOrDefault();
 
             var rook = rookField.CurrentFigure as Rook;
-            rook.Move(rookField, newRookField, allowedMoves);
-            newRookField.IsClicked = false;
+            rook.Move(rookField, queenField, allowedMoves);
+            queenField.IsClicked = false;
         }
 
         public override bool Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
@@ -150,11 +167,14 @@ namespace ChessGame.Core
                 clickedField.FigureImageSource = mImageUri;
                 clickedFigure.FigureImageSource = defaultImageSource;
 
-                if (!mIsMoved)
-                    mIsMoved = true;
-
                 if (mCanCastle)
                     MoveCastle(clickedField, allowedMoves);
+
+                if (!mIsMoved)
+                {
+                    mIsMoved = true;
+                    mCanCastle = false;
+                }
 
                 return true;
             }

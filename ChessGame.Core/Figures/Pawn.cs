@@ -23,13 +23,12 @@ namespace ChessGame.Core
 
             clickedField.FigureImageSource = mImageUri;
         }
-        public override void AllowedMoves(IField clickedFigure, ObservableCollection<IField> fieldsList)
+        public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
-            var figuresList = fieldsList.Where(x => x.CurrentFigure != null).ToList();
-            Point[] pointsMoves = null;
-            Point[] pointsAttackMoves = null;
+            Point[] forwardMoves = null;
+            Point[] attackMoves = null;
 
-            Point[] blackPawnMoves =
+            Point[] blackPawnForwardMoves =
             {
                 new Point(clickedFigure.RowIndex + 1, clickedFigure.ColumnIndex),
                 new Point(clickedFigure.RowIndex + 2, clickedFigure.ColumnIndex)
@@ -41,7 +40,7 @@ namespace ChessGame.Core
                 new Point(clickedFigure.RowIndex + 1, clickedFigure.ColumnIndex - 1)
             };
 
-            Point[] whitePawnMoves =
+            Point[] whitePawnForwardMoves =
             {
                 new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex),
                 new Point(clickedFigure.RowIndex - 2, clickedFigure.ColumnIndex)
@@ -61,51 +60,83 @@ namespace ChessGame.Core
 
             if (mPlayer == Player.Black)
             {
-                pointsMoves = blackPawnMoves;
-                pointsAttackMoves = blackPawnAttackMoves;
+                forwardMoves = blackPawnForwardMoves;
+                attackMoves = blackPawnAttackMoves;
             }
             else if (mPlayer == Player.White)
             {
-                pointsMoves = whitePawnMoves;
-                pointsAttackMoves = whitePawnAttackMoves;
+                forwardMoves = whitePawnForwardMoves;
+                attackMoves = whitePawnAttackMoves;
             }
 
+            AllowedMovesWhenItGoingForward(fieldsList, forwardMoves);
+            AllowedMovesWhenItAttacking(clickedFigure, fieldsList, attackMoves);
+        }
+
+        private void AllowedMovesWhenItGoingForward(ObservableCollection<IField> fieldsList, Point[] forwardMoves)
+        {
+            var checkCondition = false;
             for (int i = 0; i < 2; i++)
             {
-                var moveField = fieldsList.Where(x => x.RowIndex == pointsMoves[i].RowIndex && x.ColumnIndex == pointsMoves[i].ColumnIndex)
+                var moveField = fieldsList.Where(x => x.RowIndex == forwardMoves[i].RowIndex && x.ColumnIndex == forwardMoves[i].ColumnIndex)
                                           .FirstOrDefault();
-                if (moveField.CurrentFigure == null)
-                {
-                    fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                              .Select(x => x.FieldState = FieldState.MoveState)
-                              .FirstOrDefault();
-                }
+
+                if (GameInfo.Check)
+                    checkCondition = moveField is not null && moveField.IsUnderCheck;
                 else
-                    break;
+                    checkCondition = true;
 
-                if (mIsMoved)
-                    break;
+                if(checkCondition)
+                {
+                    if (moveField.CurrentFigure == null)
+                    {
+                        fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                                  .Select(x => x.FieldState = FieldState.MoveState)
+                                  .FirstOrDefault();
+                    }
+                    else
+                        break;
+
+                    if (mIsMoved)
+                        break;
+                }
             }
+        }
 
+        private void AllowedMovesWhenItAttacking(IField clickedFigure, ObservableCollection<IField> fieldsList, Point[] attackMoves)
+        {
+            var checkCondition = false;
             for (int i = 0; i < 2; i++)
             {
-                var attackField = fieldsList.Where(x => x.RowIndex == pointsAttackMoves[i].RowIndex && x.ColumnIndex == pointsAttackMoves[i].ColumnIndex)
+                var attackField = fieldsList.Where(x => x.RowIndex == attackMoves[i].RowIndex && x.ColumnIndex == attackMoves[i].ColumnIndex)
                                             .FirstOrDefault();
-                if(attackField is not null)
+
+                if (GameInfo.Check)
+                    checkCondition = attackField is not null && attackField.IsUnderCheck;
+                else
+                    checkCondition = true;
+
+                if(checkCondition)
                 {
-                    if (attackField.CurrentFigure is not null)
+                    if (attackField is not null)
                     {
-                        if (attackField.CurrentFigure.Player != clickedFigure.CurrentFigure.Player)
+                        if (attackField.CurrentFigure is not null)
                         {
-                            fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
-                                      .Select(x => x.FieldState = FieldState.CaptureState)
-                                      .FirstOrDefault();
+                            if (attackField.CurrentFigure.Player != clickedFigure.CurrentFigure.Player)
+                            {
+                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
+                                          .Select(x => x.FieldState = FieldState.CaptureState)
+                                          .FirstOrDefault();
+                            }
                         }
                     }
                 }
             }
+        }
 
-            //en passant
+        private void AllowedMovesWhenEnPassant(IField clickedFigure, ObservableCollection<IField> fieldsList, Point[] enPassantMoves)
+        {
+            //en passant (do poprawki)
             //for (int i = 0; i < 2; i++)
             //{
             //    var enPassantField = fieldsList.Where(x => x.RowIndex == enPassantMoves[i].RowIndex && x.ColumnIndex == enPassantMoves[i].ColumnIndex)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ChessGame.Core
@@ -8,7 +9,8 @@ namespace ChessGame.Core
     {
         public void Container(ObservableCollection<IField> fieldsList)
         {
-            ClearUnderAttackFlag(fieldsList);
+            ResetUnderAttackFlag(fieldsList);
+            ResetCheckFlag(fieldsList);
 
             PawnFieldUnderAttack(fieldsList);
             RookFieldUnderAttack(fieldsList);
@@ -18,7 +20,24 @@ namespace ChessGame.Core
             KingFieldUnderAttack(fieldsList);
         }
 
-        private void ClearUnderAttackFlag(ObservableCollection<IField> fieldsList)
+        private void ResetCheckFlag(ObservableCollection<IField> fieldsList)
+        {
+            GameInfo.Check = false;
+
+            foreach (var field in fieldsList.Where(x => x.IsUnderCheck).ToList())
+                field.IsUnderCheck = false;
+        }
+
+        private void RaiseCheckFlag(List<IField> attackedFieldsWithCheck)
+        {
+            GameInfo.Check = true;
+
+            foreach (var field in attackedFieldsWithCheck)
+                field.IsUnderCheck = true;
+
+        }
+
+        private void ResetUnderAttackFlag(ObservableCollection<IField> fieldsList)
         {
             foreach (var field in fieldsList.Where(x => x.IsUnderAttack == true))
                 field.IsUnderAttack = false;
@@ -26,11 +45,11 @@ namespace ChessGame.Core
 
         private void PawnFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
+            var attackedFieldsWithCheck = new List<IField>();
+            Point[] pointsAttackMoves = null;
 
-            foreach (var pawn in fieldsList.Where(x => x.CurrentFigure is Pawn && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
+            foreach (var pawn in fieldsList.Where(x => x.CurrentFigure is Pawn && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
-                Point[] pointsAttackMoves = null;
-
                 Point[] whitePawnAttackMoves =
                 {
                 new Point(pawn.RowIndex - 1, pawn.ColumnIndex + 1),
@@ -54,20 +73,32 @@ namespace ChessGame.Core
 
                 for (int i = 0; i < 2; i++)
                 {
+                    attackedFieldsWithCheck.Add(pawn);
+
                     var attackField = fieldsList.Where(x => x.RowIndex == pointsAttackMoves[i].RowIndex && x.ColumnIndex == pointsAttackMoves[i].ColumnIndex)
                                                 .FirstOrDefault();
 
                     if (attackField is not null)
+                    {
+                        attackedFieldsWithCheck.Add(attackField);
+                        if (attackField.CurrentFigure is King &&
+                           attackField.CurrentFigure.Player != GameInfo.CurrentPlayer)
+                            RaiseCheckFlag(attackedFieldsWithCheck);
+
                         attackField.IsUnderAttack = true;
+                        attackedFieldsWithCheck.Clear();
+                    }
                 }
             }
         }
 
         private void RookFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var rook in fieldsList.Where(x => x.CurrentFigure is Rook && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
+            var allowedMovesList = new List<Point>();
+            var attackedFieldsWithCheck = new List<IField>();
+
+            foreach (var rook in fieldsList.Where(x => x.CurrentFigure is Rook && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
-                List<Point> alloweMovesList = new List<Point>();
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -76,50 +107,65 @@ namespace ChessGame.Core
                         switch (i)
                         {
                             case 0:
-                                alloweMovesList.Add(new Point(rook.RowIndex + j, rook.ColumnIndex));
+                                allowedMovesList.Add(new Point(rook.RowIndex + j, rook.ColumnIndex));
                                 break;
                             case 1:
-                                alloweMovesList.Add(new Point(rook.RowIndex - j, rook.ColumnIndex));
+                                allowedMovesList.Add(new Point(rook.RowIndex - j, rook.ColumnIndex));
                                 break;
                             case 2:
-                                alloweMovesList.Add(new Point(rook.RowIndex, rook.ColumnIndex + j));
+                                allowedMovesList.Add(new Point(rook.RowIndex, rook.ColumnIndex + j));
                                 break;
                             case 3:
-                                alloweMovesList.Add(new Point(rook.RowIndex, rook.ColumnIndex - j));
+                                allowedMovesList.Add(new Point(rook.RowIndex, rook.ColumnIndex - j));
                                 break;
                         }
                     }
-                    foreach (var point in alloweMovesList)
+                    attackedFieldsWithCheck.Add(rook);
+                    foreach (var point in allowedMovesList)
                     {
-                        var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
+                        var attackField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
                                                   .FirstOrDefault();
 
-                        if (moveField is not null)
+                        if (attackField is not null)
                         {
-                            if (moveField.CurrentFigure == null)
-                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                            attackedFieldsWithCheck.Add(attackField);
+                            if (attackField.CurrentFigure is King &&
+                                attackField.CurrentFigure.Player != GameInfo.CurrentPlayer)
+                            {
+                                RaiseCheckFlag(attackedFieldsWithCheck);
+                            }
+
+                            if (attackField.CurrentFigure == null ||
+                                (attackField.CurrentFigure is King && attackField.CurrentFigure.Player != GameInfo.CurrentPlayer))
+
+                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
                                           .Select(x => x.IsUnderAttack = true)
                                           .FirstOrDefault();
                             else
                             {
-                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
                                             .Select(x => x.IsUnderAttack = true)
                                             .FirstOrDefault();
 
-                                alloweMovesList.Clear();
+                                allowedMovesList.Clear();
                                 break;
                             }
                         }
                     }
+                    allowedMovesList.Clear();
+                    attackedFieldsWithCheck.Clear();
                 }
             }
         }
 
         private void KnightFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var knight in fieldsList.Where(x => x.CurrentFigure is Knight && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
+            var allowedMovesList = new List<Point>();
+            var attackedFieldsWithCheck = new List<IField>();
+
+            foreach (var knight in fieldsList.Where(x => x.CurrentFigure is Knight && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
-                var allowedMovesList = new List<Point>
+                allowedMovesList = new List<Point>
                 {
                 new Point(knight.RowIndex - 1, knight.ColumnIndex + 2), //1
                 new Point(knight.RowIndex + 1, knight.ColumnIndex + 2), //2
@@ -133,14 +179,24 @@ namespace ChessGame.Core
 
                 foreach (var point in allowedMovesList)
                 {
+                    attackedFieldsWithCheck.Add(knight);
+
                     var attackField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
                                               .FirstOrDefault();
 
                     if (attackField is not null)
                     {
+                        attackedFieldsWithCheck.Add(attackField);
+
+                        if (attackField.CurrentFigure is King &&
+                            attackField.CurrentFigure.Player != GameInfo.CurrentPlayer)
+                            RaiseCheckFlag(attackedFieldsWithCheck);
+
                         fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
                                         .Select(x => x.IsUnderAttack = true)
                                         .FirstOrDefault();
+
+                        attackedFieldsWithCheck.Clear();
                     }
                 }
 
@@ -149,9 +205,11 @@ namespace ChessGame.Core
 
         private void BishopFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var bishop in fieldsList.Where(x => x.CurrentFigure is Bishop && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
+            var allowedMovesList = new List<Point>();
+            var attackedFieldsWithCheck = new List<IField>();
+
+            foreach (var bishop in fieldsList.Where(x => x.CurrentFigure is Bishop && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
-                List<Point> alloweMovesList = new List<Point>();
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -160,45 +218,69 @@ namespace ChessGame.Core
                         switch (i)
                         {
                             case 0:
-                                alloweMovesList.Add(new Point(bishop.RowIndex + j, bishop.ColumnIndex + j));
+                                allowedMovesList.Add(new Point(bishop.RowIndex + j, bishop.ColumnIndex + j));
                                 break;
                             case 1:
-                                alloweMovesList.Add(new Point(bishop.RowIndex + j, bishop.ColumnIndex - j));
+                                allowedMovesList.Add(new Point(bishop.RowIndex + j, bishop.ColumnIndex - j));
                                 break;
                             case 2:
-                                alloweMovesList.Add(new Point(bishop.RowIndex - j, bishop.ColumnIndex + j));
+                                allowedMovesList.Add(new Point(bishop.RowIndex - j, bishop.ColumnIndex + j));
                                 break;
                             case 3:
-                                alloweMovesList.Add(new Point(bishop.RowIndex - j, bishop.ColumnIndex - j));
+                                allowedMovesList.Add(new Point(bishop.RowIndex - j, bishop.ColumnIndex - j));
                                 break;
                         }
                     }
 
-                    foreach (var point in alloweMovesList)
+                    attackedFieldsWithCheck.Add(bishop);
+
+                    foreach (var point in allowedMovesList)
                     {
                         var attackField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
                                                   .FirstOrDefault();
 
+
                         if (attackField is not null)
                         {
-                            fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
-                                        .Select(x => x.IsUnderAttack = true)
-                                        .FirstOrDefault();
+                            attackedFieldsWithCheck.Add(attackField);
 
-                            alloweMovesList.Clear();
-                            break;
+                            if (attackField.CurrentFigure is King &&
+                                attackField.CurrentFigure.Player != GameInfo.CurrentPlayer)
+                            {
+                                RaiseCheckFlag(attackedFieldsWithCheck);
+                            }
+
+                            if (attackField.CurrentFigure == null ||
+                                (attackField.CurrentFigure is King && attackField.CurrentFigure.Player != GameInfo.CurrentPlayer))
+
+                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
+                                          .Select(x => x.IsUnderAttack = true)
+                                          .FirstOrDefault();
+                            else
+                            {
+                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
+                                            .Select(x => x.IsUnderAttack = true)
+                                            .FirstOrDefault();
+
+                                allowedMovesList.Clear();
+                                break;
+                            }
                         }
                     }
+                    allowedMovesList.Clear();
+                    attackedFieldsWithCheck.Clear();
                 }
             }
         }
 
         private void QueenFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var queen in fieldsList.Where(x => x.CurrentFigure is Queen && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
-            {
-                List<Point> alloweMovesList = new List<Point>();
+            var allowedMovesList = new List<Point>();
+            var attackedFieldsWithCheck = new List<IField>();
 
+            foreach (var queen in fieldsList.Where(x => x.CurrentFigure is Queen && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
+            {
+                attackedFieldsWithCheck.Clear();
                 for (int i = 0; i < 8; i++)
                 {
                     for (int j = 1; j < 8; j++)
@@ -206,60 +288,75 @@ namespace ChessGame.Core
                         switch (i)
                         {
                             case 0:
-                                alloweMovesList.Add(new Point(queen.RowIndex + j, queen.ColumnIndex + j));
+                                allowedMovesList.Add(new Point(queen.RowIndex + j, queen.ColumnIndex + j));
                                 break;
                             case 1:
-                                alloweMovesList.Add(new Point(queen.RowIndex + j, queen.ColumnIndex - j));
+                                allowedMovesList.Add(new Point(queen.RowIndex + j, queen.ColumnIndex - j));
                                 break;
                             case 2:
-                                alloweMovesList.Add(new Point(queen.RowIndex - j, queen.ColumnIndex + j));
+                                allowedMovesList.Add(new Point(queen.RowIndex - j, queen.ColumnIndex + j));
                                 break;
                             case 3:
-                                alloweMovesList.Add(new Point(queen.RowIndex - j, queen.ColumnIndex - j));
+                                allowedMovesList.Add(new Point(queen.RowIndex - j, queen.ColumnIndex - j));
                                 break;
                             case 4:
-                                alloweMovesList.Add(new Point(queen.RowIndex + j, queen.ColumnIndex));
+                                allowedMovesList.Add(new Point(queen.RowIndex + j, queen.ColumnIndex));
                                 break;
                             case 5:
-                                alloweMovesList.Add(new Point(queen.RowIndex - j, queen.ColumnIndex));
+                                allowedMovesList.Add(new Point(queen.RowIndex - j, queen.ColumnIndex));
                                 break;
                             case 6:
-                                alloweMovesList.Add(new Point(queen.RowIndex, queen.ColumnIndex + j));
+                                allowedMovesList.Add(new Point(queen.RowIndex, queen.ColumnIndex + j));
                                 break;
                             case 7:
-                                alloweMovesList.Add(new Point(queen.RowIndex, queen.ColumnIndex - j));
+                                allowedMovesList.Add(new Point(queen.RowIndex, queen.ColumnIndex - j));
                                 break;
                         }
                     }
-                    foreach (var point in alloweMovesList)
+
+                    attackedFieldsWithCheck.Add(queen);
+
+                    foreach (var point in allowedMovesList)
                     {
-                        var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
+                        var attackField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
                                                   .FirstOrDefault();
 
-                        if (moveField is not null)
+                        if (attackField is not null)
                         {
-                            if (moveField.CurrentFigure == null)
-                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                            attackedFieldsWithCheck.Add(attackField);
+                            if (attackField.CurrentFigure is King &&
+                                attackField.CurrentFigure.Player != GameInfo.CurrentPlayer &&
+                                !GameInfo.Check)
+                            {
+                                RaiseCheckFlag(attackedFieldsWithCheck);
+                            }
+
+                            if (attackField.CurrentFigure == null ||
+                                (attackField.CurrentFigure is King && attackField.CurrentFigure.Player != GameInfo.CurrentPlayer))
+
+                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
                                           .Select(x => x.IsUnderAttack = true)
                                           .FirstOrDefault();
                             else
                             {
-                                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                                fieldsList.Where(x => x.RowIndex == attackField.RowIndex && x.ColumnIndex == attackField.ColumnIndex)
                                             .Select(x => x.IsUnderAttack = true)
                                             .FirstOrDefault();
 
-                                alloweMovesList.Clear();
+                                allowedMovesList.Clear();
                                 break;
                             }
                         }
                     }
+                    allowedMovesList.Clear();
+                    attackedFieldsWithCheck.Clear();
                 }
             }
         }
 
         private void KingFieldUnderAttack(ObservableCollection<IField> fieldsList)
         {
-            foreach (var king in fieldsList.Where(x => x.CurrentFigure is King && x.CurrentFigure.Player == GameStatus.CurrentPlayer).ToList())
+            foreach (var king in fieldsList.Where(x => x.CurrentFigure is King && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
                 var allowedMovesList = new List<Point>
             {

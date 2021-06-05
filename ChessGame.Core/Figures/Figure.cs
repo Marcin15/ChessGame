@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 
 namespace ChessGame.Core
 {
@@ -26,6 +27,30 @@ namespace ChessGame.Core
 
             return false;
         }
-        public abstract void AllowedMoves(IField clickedFigure, ObservableCollection<IField> fieldsList);
+        protected bool GetAllowedMoves(IField clickedFigure, ObservableCollection<IField> fieldsList, IField moveField)
+        {
+            if (moveField.CurrentFigure == null)
+                fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                          .Select(x => x.FieldState = FieldState.MoveState)
+                          .FirstOrDefault();
+            else
+            {
+                if (moveField.CurrentFigure.Player == clickedFigure.CurrentFigure.Player)
+                    return true;
+
+                else
+                {
+                    fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
+                              .Select(x => x.FieldState = FieldState.CaptureState)
+                              .FirstOrDefault();
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public abstract void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList);
     }
 }
