@@ -8,13 +8,15 @@ namespace ChessGame.Core
     {
         private IField mOldClickedFigure;
         private bool mTestBoolVar = false;
-        private readonly FieldUnderAttackChecker mAttackChecker = new FieldUnderAttackChecker();
+
+        private AttackMechanicContainer mAttackChecker;
         public void Container(IField clickedField, ObservableCollection<IField> fieldsList)
         {
             AssignPreviousClickedFigure(clickedField);
             if(MoveFigure(clickedField, fieldsList))
             {
-                mAttackChecker.Container(fieldsList);
+                //mAttackChecker.Container(fieldsList);
+                mAttackChecker = new AttackMechanicContainer(fieldsList);
                 ChangePlayer();
                 //mCheckCheker.Container(fieldsList);
             }
@@ -43,8 +45,6 @@ namespace ChessGame.Core
                 x.Passing = false;
             }
         }
-
-        private void SomeMethod() => mTestBoolVar = !mTestBoolVar;
 
         private bool MoveFigure(IField clickedField, ObservableCollection<IField> fieldsList)
         {

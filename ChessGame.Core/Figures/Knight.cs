@@ -25,8 +25,7 @@ namespace ChessGame.Core
 
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
-            var checkCondition = false;
-            var allowedMovesList = new List<Point>
+            var potentialMovesList = new List<Point>
             {
                 new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex + 2), //1
                 new Point(clickedFigure.RowIndex + 1, clickedFigure.ColumnIndex + 2), //2
@@ -37,21 +36,7 @@ namespace ChessGame.Core
                 new Point(clickedFigure.RowIndex - 2, clickedFigure.ColumnIndex - 1), //7
                 new Point(clickedFigure.RowIndex - 2, clickedFigure.ColumnIndex + 1), //8
             };
-
-            foreach (var point in allowedMovesList)
-            {
-                var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
-                                          .FirstOrDefault();
-
-
-                if (GameInfo.Check)
-                    checkCondition = moveField is not null && moveField.IsUnderCheck;
-                else
-                    checkCondition = true;
-
-                if (checkCondition && moveField is not null)
-                    GetAllowedMoves(clickedFigure, fieldsList, moveField);
-            }
+            base.GetAllowedMoves(potentialMovesList, clickedFigure, fieldsList, true);
         }
         public override bool Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
         {

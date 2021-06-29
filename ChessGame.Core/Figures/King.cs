@@ -27,7 +27,7 @@ namespace ChessGame.Core
 
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
-            var allowedMovesList = new List<Point>
+            var potentialMovesList = new List<Point>
             {
                 new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex + 1),
                 new Point(clickedFigure.RowIndex, clickedFigure.ColumnIndex + 1),
@@ -39,36 +39,12 @@ namespace ChessGame.Core
                 new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex),
             };
 
-            foreach (var point in allowedMovesList)
-            {
-                var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
-                                          .FirstOrDefault();
+            base.GetAllowedMoves(potentialMovesList, clickedFigure, fieldsList, true, true);
 
-                if (moveField is not null && !moveField.IsUnderAttack)
-                {
-                    if (moveField.CurrentFigure == null)
-                    {
-                        fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                      .Select(x => x.FieldState = FieldState.MoveState)
-                                      .FirstOrDefault();
-                    }
-                    else
-                    {
-                        if (moveField.CurrentFigure.Player == clickedFigure.CurrentFigure.Player)
-                            continue;
-                        else
-                        {
-                            fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
-                                  .Select(x => x.FieldState = FieldState.CaptureState)
-                                  .FirstOrDefault();
-                        }
-                    }
-                }
-                if (!mIsMoved)
-                {
-                    ShortCastle(fieldsList);
-                    LongCastle(fieldsList);
-                }
+            if (!mIsMoved)
+            {
+                ShortCastle(fieldsList);
+                LongCastle(fieldsList);
             }
         }
 
@@ -80,7 +56,7 @@ namespace ChessGame.Core
             var rookField = fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 7).FirstOrDefault();
             var rook = rookField.CurrentFigure as Rook;
 
-            if(rook is not null)
+            if (rook is not null)
             {
                 if (!rook.IsMoved &&
                     bishopField.CurrentFigure == null &&
@@ -108,7 +84,7 @@ namespace ChessGame.Core
             var rookField = fieldsList.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 0).FirstOrDefault();
             var rook = rookField.CurrentFigure as Rook;
 
-            if(rook is not null)
+            if (rook is not null)
             {
                 if (!rook.IsMoved &&
                     queenField.CurrentFigure == null &&
@@ -129,16 +105,6 @@ namespace ChessGame.Core
             }
         }
 
-        private void MoveCastle(IField clickedField, ObservableCollection<IField> allowedMoves)
-        {
-            var rowIndex = (mPlayer == Player.White) ? 7 : 0;
-
-            if (clickedField == allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 6).FirstOrDefault())
-                ShortCastleMove(rowIndex, allowedMoves);
-            else if (clickedField == allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 2).FirstOrDefault())
-                LongCastleMove(rowIndex, allowedMoves);
-        }
-
         private void ShortCastleMove(int rowIndex, ObservableCollection<IField> allowedMoves)
         {
             var rookField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 7).FirstOrDefault();
@@ -148,6 +114,7 @@ namespace ChessGame.Core
             rook.Move(rookField, bishopField, allowedMoves);
             bishopField.IsClicked = false;
         }
+
         private void LongCastleMove(int rowIndex, ObservableCollection<IField> allowedMoves)
         {
             var rookField = allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 0).FirstOrDefault();
@@ -156,6 +123,16 @@ namespace ChessGame.Core
             var rook = rookField.CurrentFigure as Rook;
             rook.Move(rookField, queenField, allowedMoves);
             queenField.IsClicked = false;
+        }
+
+        private void MoveCastle(IField clickedField, ObservableCollection<IField> allowedMoves)
+        {
+            var rowIndex = (mPlayer == Player.White) ? 7 : 0;
+
+            if (clickedField == allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 6).FirstOrDefault())
+                ShortCastleMove(rowIndex, allowedMoves);
+            else if (clickedField == allowedMoves.Where(x => x.RowIndex == rowIndex && x.ColumnIndex == 2).FirstOrDefault())
+                LongCastleMove(rowIndex, allowedMoves);
         }
 
         public override bool Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)

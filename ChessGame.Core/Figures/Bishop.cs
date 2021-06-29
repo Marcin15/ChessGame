@@ -25,8 +25,7 @@ namespace ChessGame.Core
 
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
-            List<Point> alloweMovesList = new List<Point>();
-            var checkCondition = false;
+            List<Point> potentialMovesList = new List<Point>();
 
             for (int i = 0; i < 4; i++)
             {
@@ -35,37 +34,20 @@ namespace ChessGame.Core
                     switch (i)
                     {
                         case 0:
-                            alloweMovesList.Add(new Point(clickedFigure.RowIndex + j, clickedFigure.ColumnIndex + j));
+                            potentialMovesList.Add(new Point(clickedFigure.RowIndex + j, clickedFigure.ColumnIndex + j));
                             break;
                         case 1:
-                            alloweMovesList.Add(new Point(clickedFigure.RowIndex + j, clickedFigure.ColumnIndex - j));
+                            potentialMovesList.Add(new Point(clickedFigure.RowIndex + j, clickedFigure.ColumnIndex - j));
                             break;
                         case 2:
-                            alloweMovesList.Add(new Point(clickedFigure.RowIndex - j, clickedFigure.ColumnIndex + j));
+                            potentialMovesList.Add(new Point(clickedFigure.RowIndex - j, clickedFigure.ColumnIndex + j));
                             break;
                         case 3:
-                            alloweMovesList.Add(new Point(clickedFigure.RowIndex - j, clickedFigure.ColumnIndex - j));
+                            potentialMovesList.Add(new Point(clickedFigure.RowIndex - j, clickedFigure.ColumnIndex - j));
                             break;
                     }
                 }
-
-                foreach (var point in alloweMovesList)
-                {
-                    var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
-                                              .FirstOrDefault();
-
-                    if (GameInfo.Check)
-                        checkCondition = moveField is not null && moveField.IsUnderCheck;
-                    else
-                        checkCondition = true;
-
-                    if (checkCondition && moveField is not null)
-                        if (GetAllowedMoves(clickedFigure, fieldsList, moveField))
-                        {
-                            alloweMovesList.Clear();
-                            break;
-                        }
-                }
+                base.GetAllowedMoves(potentialMovesList, clickedFigure, fieldsList);
             }
         }
 

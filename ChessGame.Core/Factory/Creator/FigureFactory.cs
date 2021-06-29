@@ -40,7 +40,7 @@ namespace ChessGame.Core
                         break;
                     case "Pawn":
                         mFactory = new PawnFactory(fields.Where(x => x.RowIndex == initialLocalizations[i].Row && x.ColumnIndex == initialLocalizations[i].Column).FirstOrDefault(), initialLocalizations[i].Player);
-                        figure = mFactory.GetFigure();
+                        //figure = mFactory.GetFigure();
                         break;
                     default:
                         throw new Exception();

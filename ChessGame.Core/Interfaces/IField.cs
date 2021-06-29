@@ -12,5 +12,6 @@ namespace ChessGame.Core
         public Figure CurrentFigure { get; set; }
         public bool IsUnderAttack { get; set; }
         public bool IsUnderCheck { get; set; }
+        public bool  IsUnderPin { get; set; }
     }
 }

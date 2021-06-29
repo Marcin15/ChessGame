@@ -5,8 +5,9 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class FieldUnderAttackChecker
+    public class FieldUnderAttackChecker2
     {
+        QueensAttackMechanics qam;
         public void Container(ObservableCollection<IField> fieldsList)
         {
             ResetUnderAttackFlag(fieldsList);
@@ -16,8 +17,9 @@ namespace ChessGame.Core
             RookFieldUnderAttack(fieldsList);
             KnightFieldUnderAttack(fieldsList);
             BishopFieldUnderAttack(fieldsList);
-            QueenFieldUnderAttack(fieldsList);
+            //QueenFieldUnderAttack(fieldsList);
             KingFieldUnderAttack(fieldsList);
+            qam = new QueensAttackMechanics(fieldsList);
         }
 
         private void ResetCheckFlag(ObservableCollection<IField> fieldsList)

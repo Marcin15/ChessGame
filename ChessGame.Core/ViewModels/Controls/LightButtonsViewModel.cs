@@ -54,6 +54,7 @@ namespace ChessGame.Core
         public Figure CurrentFigure { get; set; } = null;
         public bool IsUnderAttack { get; set; } = false;
         public bool IsUnderCheck { get; set; } = false;
+        public bool IsUnderPin { get; set; } = false;
         public LightButtonsViewModel()
         {
             mFigureImageSource = new Uri(@"/Images/Default.png", UriKind.Relative);

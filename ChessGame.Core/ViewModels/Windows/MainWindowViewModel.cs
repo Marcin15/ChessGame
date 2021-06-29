@@ -24,7 +24,7 @@ namespace ChessGame.Core
             mFigureInteractionManager.Container(fieldVM, FieldsList);
             mFieldHightlightManager.Container(fieldVM, FieldsList);
 
-            Debug.WriteLine($"{fieldVM.RowIndex} {fieldVM.ColumnIndex} {fieldVM.FieldState}");
+            Debug.WriteLine(fieldVM.IsUnderAttack);
         }
     }
 }
