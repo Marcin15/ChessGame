@@ -6,32 +6,29 @@ using System.Text;
 
 namespace ChessGame.Core
 {
-    public class FlagCleaner
+    public class FlagCleaner : IFlagCleaner
     {
-        ObservableCollection<IField> mFieldsList;
-        public FlagCleaner(ObservableCollection<IField> fieldsList)
+        public void Clean(ObservableCollection<IField> fieldsList)
         {
-            mFieldsList = fieldsList;
-
-            ClearIsPinnedFlag();
-            ClearIsUnderPinFlag();
-            ClearCheckFlag();
-            ClearIsUnderAttackFlag();
+            ClearIsPinnedFlag(fieldsList);
+            ClearIsUnderPinFlag(fieldsList);
+            ClearCheckFlag(fieldsList);
+            ClearIsUnderAttackFlag(fieldsList);
         }
 
-        private void ClearIsPinnedFlag()
+        private void ClearIsPinnedFlag(ObservableCollection<IField> fieldsList)
         {
-            foreach (var figures in mFieldsList.Where(x => x.CurrentFigure?.IsPinned == true).ToList())
+            foreach (var figures in fieldsList.Where(x => x.CurrentFigure?.IsPinned == true).ToList())
             {
                 figures.CurrentFigure.IsPinned = false;
             }
         }
 
-        private void ClearIsUnderPinFlag()
+        private void ClearIsUnderPinFlag(ObservableCollection<IField> fieldsList)
         {
-            for (int i = 0; i < mFieldsList.Count; i++)
+            for (int i = 0; i < fieldsList.Count; i++)
             {
-                IField fields = mFieldsList[i];
+                IField fields = fieldsList[i];
                 if (fields.IsUnderPin)
                 {
                     fields.IsUnderPin = false;
@@ -39,17 +36,17 @@ namespace ChessGame.Core
             }
         }
 
-        private void ClearCheckFlag()
+        private void ClearCheckFlag(ObservableCollection<IField> fieldsList)
         {
             GameInfo.Check = false;
 
-            foreach (var field in mFieldsList.Where(x => x.IsUnderCheck).ToList())
+            foreach (var field in fieldsList.Where(x => x.IsUnderCheck).ToList())
                 field.IsUnderCheck = false;
         }
 
-        private void ClearIsUnderAttackFlag()
+        private void ClearIsUnderAttackFlag(ObservableCollection<IField> fieldsList)
         {
-            foreach (var field in mFieldsList.Where(x => x.IsUnderAttack == true))
+            foreach (var field in fieldsList.Where(x => x.IsUnderAttack == true))
                 field.IsUnderAttack = false;
         }
     }

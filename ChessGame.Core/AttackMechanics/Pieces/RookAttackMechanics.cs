@@ -4,23 +4,20 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class RookAttackMechanics
+    public class RookAttackMechanics : IRookAttackMechanics
     {
-        private ObservableCollection<IField> mFieldsList;
-
-        public RookAttackMechanics(ObservableCollection<IField> fieldsList)
+        private readonly IFieldUnderPinChecker mFieldUnderPinChecker;
+        private readonly ICheckFinder mCheckFinder;
+        public RookAttackMechanics(IFieldUnderPinChecker fieldUnderPinChecker, ICheckFinder checkFinder)
         {
-            mFieldsList = fieldsList;
-            GetRookAttackMechanics();
+            mFieldUnderPinChecker = fieldUnderPinChecker;
+            mCheckFinder = checkFinder;
         }
-        public void GetRookAttackMechanics()
+        public void GetRooksAttackMechanics(ObservableCollection<IField> fieldsList)
         {
-            var fieldUnderPinChecker = new FieldUnderPinChecker(mFieldsList);
-            var checkFinder = new CheckFinder(mFieldsList);
-
             List<Point> allowedMovesList = new();
 
-            foreach (var rook in mFieldsList.Where(x => x.CurrentFigure is Rook && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
+            foreach (var rook in fieldsList.Where(x => x.CurrentFigure is Rook && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -44,8 +41,8 @@ namespace ChessGame.Core
                         }
                     }
 
-                    checkFinder.RaiseIsUnderAttackFlag(allowedMovesList);
-                    fieldUnderPinChecker.PinFigure(allowedMovesList);
+                    mFieldUnderPinChecker.PinFigure(allowedMovesList, fieldsList);
+                    mCheckFinder.FindFieldsUnderAttackAndCheck(allowedMovesList, fieldsList, true);
 
                     allowedMovesList.Clear();
                 }

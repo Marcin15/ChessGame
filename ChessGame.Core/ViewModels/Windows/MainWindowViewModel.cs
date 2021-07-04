@@ -7,24 +7,33 @@ namespace ChessGame.Core
 {
     public class MainWindowViewModel : BaseViewModel
     {
-        public ObservableCollection<IField> FieldsList { get; set; } = new ObservableCollection<IField>(new CollectionMerger().MergeTwoListIntoOne());
-        private readonly IManager mFieldHightlightManager = new FieldHightlightManager();
-        private readonly IManager mFigureInteractionManager = new FigureInteractionManager();
-        private readonly IFigureCreator mFactory = new FigureFactory();
+        private static ICollectionMerger mCollectionMerger;
+        private readonly IPieceCreatorFactory mPieceCreatorFactory;
+        private readonly IFieldHightlightManager mFieldHightlightManager;
+        private readonly IPieceInteractionManager mPieceInteractionManager;
+
+        public ObservableCollection<IField> FieldsList { get; set; }
         public ICommand ClickCommand { get; set; }
-        public MainWindowViewModel()
+        public MainWindowViewModel(ICollectionMerger collectionMerger, 
+            IPieceCreatorFactory pieceCreatorFactory, 
+            IFieldHightlightManager fieldHightlightManager, 
+            IPieceInteractionManager pieceInteractionManager)
         {
+            mPieceCreatorFactory = pieceCreatorFactory;
+            mCollectionMerger = collectionMerger;
+            mFieldHightlightManager = fieldHightlightManager;
+            mPieceInteractionManager = pieceInteractionManager;
+
+            FieldsList = new ObservableCollection<IField>(mCollectionMerger.MergeTwoListIntoOne());
             ClickCommand = new RelayCommand(Click);
-            mFactory.Create(new List<IField>(FieldsList));
+            mPieceCreatorFactory.Create(new List<IField>(FieldsList));
         }
         public void Click(object obj)
         {
             var fieldVM = obj as IField;
 
-            mFigureInteractionManager.Container(fieldVM, FieldsList);
+            mPieceInteractionManager.Container(fieldVM, FieldsList);
             mFieldHightlightManager.Container(fieldVM, FieldsList);
-
-            Debug.WriteLine(fieldVM.IsUnderAttack);
         }
     }
 }

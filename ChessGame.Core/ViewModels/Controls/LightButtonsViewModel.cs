@@ -51,7 +51,7 @@ namespace ChessGame.Core
         }
         public int RowIndex { get; set; }
         public int ColumnIndex { get; set; }
-        public Figure CurrentFigure { get; set; } = null;
+        public Piece CurrentFigure { get; set; } = null;
         public bool IsUnderAttack { get; set; } = false;
         public bool IsUnderCheck { get; set; } = false;
         public bool IsUnderPin { get; set; } = false;

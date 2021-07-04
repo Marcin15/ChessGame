@@ -6,23 +6,20 @@ using System.Text;
 
 namespace ChessGame.Core
 {
-    public class BishopAttackMechanics
+    public class BishopAttackMechanics : IBishopAttackMechanics
     {
-        private ObservableCollection<IField> mFieldsList;
+        private readonly IFieldUnderPinChecker mFieldUnderPinChecker;
+        private readonly ICheckFinder mCheckFinder;
 
-        public BishopAttackMechanics(ObservableCollection<IField> fieldsList)
+        public BishopAttackMechanics(IFieldUnderPinChecker fieldUnderPinChecker, ICheckFinder checkFinder)
         {
-            mFieldsList = fieldsList;
-
-            GetQueensAttackMechanics();
+            mFieldUnderPinChecker = fieldUnderPinChecker;
+            mCheckFinder = checkFinder;
         }
-        public void GetQueensAttackMechanics()
+        public void GetBishopsAttackMechanics(ObservableCollection<IField> fieldsList)
         {
-            var fieldUnderPinChecker = new FieldUnderPinChecker(mFieldsList);
-            var checkFinder = new CheckFinder(mFieldsList);
-
             List<Point> allowedMovesList = new();
-            foreach (var bishop in mFieldsList.Where(x => x.CurrentFigure is Bishop && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
+            foreach (var bishop in fieldsList.Where(x => x.CurrentFigure is Bishop && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -46,8 +43,8 @@ namespace ChessGame.Core
                         }
                     }
 
-                    checkFinder.RaiseIsUnderAttackFlag(allowedMovesList);
-                    fieldUnderPinChecker.PinFigure(allowedMovesList);
+                    mCheckFinder.FindFieldsUnderAttackAndCheck(allowedMovesList, fieldsList, true);
+                    mFieldUnderPinChecker.PinFigure(allowedMovesList, fieldsList);
 
                     allowedMovesList.Clear();
                 }

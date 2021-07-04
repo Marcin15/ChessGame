@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class FieldHightlightManager : IManager
+    public class FieldHightlightManager : IFieldHightlightManager
     {
         private IField mOldClickedField;
         public void Container(IField field, ObservableCollection<IField> fieldsList)
@@ -12,7 +12,7 @@ namespace ChessGame.Core
             IsClickerSwitcher(field);
             HighlightOneField(field);
             AssignPreviousClickedField(field);
-            SetEveryFieldStatateToEmpty( fieldsList);
+            SetEveryFieldStatateToEmpty(fieldsList);
             ShowFiguresAllowedMoves(field, fieldsList);
         }
         private void IsClickerSwitcher(IField clickedField) => clickedField.IsClicked = !clickedField.IsClicked;
@@ -34,7 +34,7 @@ namespace ChessGame.Core
         }
         private void ShowFiguresAllowedMoves(IField field, ObservableCollection<IField> fieldsList)
         {
-            if (field.CurrentFigure is Figure && field.IsClicked && field.CurrentFigure.Player == GameInfo.CurrentPlayer)
+            if (field.CurrentFigure is Piece && field.IsClicked && field.CurrentFigure.Player == GameInfo.CurrentPlayer)
             {
                 field.CurrentFigure.GetAllowedMovesOfCurrentClickedFigure(field, fieldsList);
             }

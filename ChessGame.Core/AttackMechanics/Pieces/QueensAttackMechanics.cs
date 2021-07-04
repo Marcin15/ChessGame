@@ -4,23 +4,19 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class QueensAttackMechanics
+    public class QueensAttackMechanics : IQueensAttackMechanics
     {
-        private ObservableCollection<IField> mFieldsList;
-
-        public QueensAttackMechanics(ObservableCollection<IField> fieldsList)
+        private readonly IFieldUnderPinChecker mFieldUnderPinChecker;
+        private readonly ICheckFinder mCheckFinder;
+        public QueensAttackMechanics(IFieldUnderPinChecker fieldUnderPinChecker, ICheckFinder checkFinder)
         {
-            mFieldsList = fieldsList;
-
-            GetQueensAttackMechanics();
+            mFieldUnderPinChecker = fieldUnderPinChecker;
+            mCheckFinder = checkFinder;
         }
-        public void GetQueensAttackMechanics()
+        public void GetQueensAttackMechanics(ObservableCollection<IField> fieldsList)
         {
-            var fieldUnderPinChecker = new FieldUnderPinChecker(mFieldsList);
-            var checkFinder = new CheckFinder(mFieldsList);
-
             List<Point> allowedMovesList = new();
-            foreach (var queen in mFieldsList.Where(x => x.CurrentFigure is Queen && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
+            foreach (var queen in fieldsList.Where(x => x.CurrentFigure is Queen && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
                 for (int i = 0; i < 8; i++)
                 {
@@ -56,8 +52,8 @@ namespace ChessGame.Core
                         }
                     }
 
-                    checkFinder.RaiseIsUnderAttackFlag(allowedMovesList);
-                    fieldUnderPinChecker.PinFigure(allowedMovesList);
+                    mCheckFinder.FindFieldsUnderAttackAndCheck(allowedMovesList, fieldsList, true);
+                    mFieldUnderPinChecker.PinFigure(allowedMovesList, fieldsList);
 
                     allowedMovesList.Clear();
                 }

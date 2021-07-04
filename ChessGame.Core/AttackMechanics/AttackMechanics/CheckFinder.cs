@@ -4,22 +4,24 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class CheckFinder
+    public class CheckFinder : ICheckFinder
     {
-        private ObservableCollection<IField> mFieldsList;
         readonly List<IField> mAttackedFieldsWithCheck = new();
 
-        public CheckFinder(ObservableCollection<IField> fieldsList)
+        public void FindFieldsUnderAttackAndCheck(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList, bool isLinearAttackingPiece)
         {
-            mFieldsList = fieldsList;
+            if (isLinearAttackingPiece)
+                RaiseIsUnderAttackLinearAttackingPiece(potentialMovesList, fieldsList);
+            else
+                RaiseIsUnderAttackNonLinearAttackingPiece(potentialMovesList, fieldsList);
         }
 
-        public void RaiseIsUnderAttackFlag(List<Point> potentialMovesList)
+        private void RaiseIsUnderAttackLinearAttackingPiece(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList)
         {
             bool firstElement = true;
             foreach (var point in potentialMovesList)
             {
-                var attackedField = mFieldsList.FirstOrDefault(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex);
+                var attackedField = fieldsList.FirstOrDefault(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex);
 
                 if (firstElement)
                 {
@@ -50,31 +52,34 @@ namespace ChessGame.Core
             mAttackedFieldsWithCheck.Clear();
         }
 
-        public void RaiseIsUnderAttackFlag(List<Point> potentialMovesList, bool isKnight)
+        private void RaiseIsUnderAttackNonLinearAttackingPiece(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList)
         {
-            bool firstelement = true;
+            bool firstElementFlag = true;
+            IField firstElement = null;
             foreach (var point in potentialMovesList)
             {
-                var attackedField = mFieldsList.FirstOrDefault(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex);
+                var attackedField = fieldsList.FirstOrDefault(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex);
 
-                if (firstelement)
+                if (firstElementFlag)
                 {
-                    firstelement = false;
-                    CheckSeeker(attackedField);
+                    firstElementFlag = false;
+                    firstElement = attackedField;
                     continue;
                 }
 
 
                 if (attackedField is not null)
                 {
-                    CheckSeeker(attackedField);
                     attackedField.IsUnderAttack = true;
+                    CheckSeeker(firstElement);
+                    if (CheckSeeker(attackedField))
+                        break;
                 }
+                mAttackedFieldsWithCheck.Clear();
             }
-            mAttackedFieldsWithCheck.Clear();
         }
 
-        private void CheckSeeker(IField attackedField)
+        private bool CheckSeeker(IField attackedField)
         {
             mAttackedFieldsWithCheck.Add(attackedField);
             if (attackedField.CurrentFigure is King &&
@@ -82,7 +87,9 @@ namespace ChessGame.Core
                 !GameInfo.Check)
             {
                 RaiseCheckFlag(mAttackedFieldsWithCheck);
+                return true;
             }
+            return false;
         }
 
         private void RaiseCheckFlag(List<IField> attackedFieldsWithCheck)

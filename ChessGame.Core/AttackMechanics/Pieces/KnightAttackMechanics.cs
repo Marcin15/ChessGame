@@ -4,22 +4,17 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class KnightAttackMechanics
+    public class KnightAttackMechanics : IKnightAttackMechanics
     {
-        private ObservableCollection<IField> mFieldsList;
-
-        public KnightAttackMechanics(ObservableCollection<IField> fieldsList)
+        private readonly ICheckFinder mCheckFinder;
+        public KnightAttackMechanics(ICheckFinder checkFinder)
         {
-            mFieldsList = fieldsList;
-
-            GetQueensAttackMechanics();
+            mCheckFinder = checkFinder;
         }
-        public void GetQueensAttackMechanics()
+        public void GetKnightsAttackMechanics(ObservableCollection<IField> fieldsList)
         {
-            var checkFinder = new CheckFinder(mFieldsList);
-
             List<Point> allowedMovesList = new();
-            foreach (var knight in mFieldsList.Where(x => x.CurrentFigure is Knight && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
+            foreach (var knight in fieldsList.Where(x => x.CurrentFigure is Knight && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
 
                 var potentialMovesList = new List<Point>
@@ -34,7 +29,7 @@ namespace ChessGame.Core
                     new Point(knight.RowIndex - 2, knight.ColumnIndex - 1), //7
                     new Point(knight.RowIndex - 2, knight.ColumnIndex + 1), //8
                 };
-                checkFinder.RaiseIsUnderAttackFlag(potentialMovesList, true);
+                mCheckFinder.FindFieldsUnderAttackAndCheck(potentialMovesList, fieldsList, false);
             }
         }
     }

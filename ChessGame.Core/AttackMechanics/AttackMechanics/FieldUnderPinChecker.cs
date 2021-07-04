@@ -4,25 +4,19 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class FieldUnderPinChecker
+    public class FieldUnderPinChecker : IFieldUnderPinChecker
     {
-        public FieldUnderPinChecker(ObservableCollection<IField> fieldsList)
-        {
-            mFieldsList = fieldsList;
-        }
-        ObservableCollection<IField> mFieldsList;
-
         private bool mFirstMetFigureFlag = false;
         private IField mPotentialPinedFigure = null;
 
-        public void PinFigure(List<Point> allowedMovesList)
+        public void PinFigure(List<Point> allowedMovesList, ObservableCollection<IField> fieldsList)
         {
             var potentialPinedFieldsList = new List<IField>();
             bool firstElement = true;
 
             foreach (var point in allowedMovesList)
             {
-                var attackedField = mFieldsList.FirstOrDefault(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex);
+                var attackedField = fieldsList.FirstOrDefault(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex);
 
                 if (attackedField is not null)
                 {

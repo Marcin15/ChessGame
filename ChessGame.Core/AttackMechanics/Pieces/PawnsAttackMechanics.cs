@@ -4,23 +4,19 @@ using System.Linq;
 
 namespace ChessGame.Core
 {
-    public class PawnsAttackMechanics
+    public class PawnsAttackMechanics : IPawnsAttackMechanics
     {
-        private ObservableCollection<IField> mFieldsList;
+        private readonly ICheckFinder mCheckFinder;
 
-        public PawnsAttackMechanics(ObservableCollection<IField> fieldsList)
+        public PawnsAttackMechanics(ICheckFinder checkFinder)
         {
-            mFieldsList = fieldsList;
-
-            GetQueensAttackMechanics();
+            mCheckFinder = checkFinder;
         }
-        public void GetQueensAttackMechanics()
+        public void GetPawnsAttackMechanics(ObservableCollection<IField> fieldsList)
         {
-            var checkFinder = new CheckFinder(mFieldsList);
-
             List<Point> potentialMovesList = null;
 
-            foreach (var pawn in mFieldsList.Where(x => x.CurrentFigure is Pawn && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
+            foreach (var pawn in fieldsList.Where(x => x.CurrentFigure is Pawn && x.CurrentFigure.Player == GameInfo.CurrentPlayer).ToList())
             {
                 List<Point> whitePawnAttackMoves = new()
                 {
@@ -44,7 +40,7 @@ namespace ChessGame.Core
                 {
                     potentialMovesList = whitePawnAttackMoves;
                 }
-                checkFinder.RaiseIsUnderAttackFlag(potentialMovesList, true);
+                mCheckFinder.FindFieldsUnderAttackAndCheck(potentialMovesList, fieldsList, false);
             }
         }
     }
