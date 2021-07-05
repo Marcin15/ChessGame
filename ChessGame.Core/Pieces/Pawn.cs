@@ -9,8 +9,12 @@ namespace ChessGame.Core
         private bool mIsMoved = false;
         private Player mPlayer;
         private Uri mImageUri;
-        private readonly Uri BlackFigureImageSource = new Uri(@"/Images/PawnBlack.png", UriKind.Relative);
-        private readonly Uri WhiteFigureImageSource = new Uri(@"/Images/PawnWhite.png", UriKind.Relative);
+
+        private IField pawnToCaptureEnPassant;
+        private bool isEnPassantPossible = false;
+
+        private readonly Uri BlackFigureImageSource = new(@"/Images/PawnBlack.png", UriKind.Relative);
+        private readonly Uri WhiteFigureImageSource = new(@"/Images/PawnWhite.png", UriKind.Relative);
         public bool Passing { get; set; } = false;
 
         public Pawn(Player player, IField clickedField) : base(player, clickedField)
@@ -25,25 +29,40 @@ namespace ChessGame.Core
         }
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
-            Point[] potencialForwardMoves = null;
-            Point[] potencialAttackMoves = null;
-
-            Point[] blackPawnPotencialForwardMoves =
+            Point[] potencialEnPassantMoves =
             {
+                new Point(clickedFigure.RowIndex, clickedFigure.ColumnIndex + 1),
+                new Point(clickedFigure.RowIndex, clickedFigure.ColumnIndex - 1)
+            };
+
+            AllowedMovesWhenItGoingForward(fieldsList, PotencialForwardMoves(clickedFigure));
+            AllowedMovesWhenItAttacking(fieldsList, PotencialAttackMoves(clickedFigure));
+            AllowedMovesWhenEnPassant(fieldsList, potencialEnPassantMoves, PotencialAttackMoves(clickedFigure));
+        }
+
+        private Point[] PotencialForwardMoves(IField clickedFigure)
+        {
+            Point[] blackPawnPotencialForwardMoves =
+{
                 new Point(clickedFigure.RowIndex + 1, clickedFigure.ColumnIndex),
                 new Point(clickedFigure.RowIndex + 2, clickedFigure.ColumnIndex)
             };
 
+            Point[] whitePawnPotencialForwardMoves =
+{
+                new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex),
+                new Point(clickedFigure.RowIndex - 2, clickedFigure.ColumnIndex)
+            };
+
+            return (mPlayer == Player.Black) ? blackPawnPotencialForwardMoves : whitePawnPotencialForwardMoves;
+        }
+
+        private Point[] PotencialAttackMoves(IField clickedFigure)
+        {
             Point[] blackPawnPotencialAttackMoves =
             {
                 new Point(clickedFigure.RowIndex + 1, clickedFigure.ColumnIndex + 1),
                 new Point(clickedFigure.RowIndex + 1, clickedFigure.ColumnIndex - 1)
-            };
-
-            Point[] whitePawnPotencialForwardMoves =
-            {
-                new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex),
-                new Point(clickedFigure.RowIndex - 2, clickedFigure.ColumnIndex)
             };
 
             Point[] whitePawnPotencialAttackMoves =
@@ -52,26 +71,7 @@ namespace ChessGame.Core
                 new Point(clickedFigure.RowIndex - 1, clickedFigure.ColumnIndex - 1)
             };
 
-            Point[] potencialEnPassantMoves =
-            {
-                new Point(clickedFigure.RowIndex, clickedFigure.ColumnIndex + 1),
-                new Point(clickedFigure.RowIndex, clickedFigure.ColumnIndex - 1)
-            };
-
-            if (mPlayer == Player.Black)
-            {
-                potencialForwardMoves = blackPawnPotencialForwardMoves;
-                potencialAttackMoves = blackPawnPotencialAttackMoves;
-            }
-            else if (mPlayer == Player.White)
-            {
-                potencialForwardMoves = whitePawnPotencialForwardMoves;
-                potencialAttackMoves = whitePawnPotencialAttackMoves;
-            }
-
-            AllowedMovesWhenItGoingForward(fieldsList, potencialForwardMoves);
-            AllowedMovesWhenItAttacking(fieldsList, potencialAttackMoves);
-            AllowedMovesWhenEnPassant(fieldsList, potencialEnPassantMoves, potencialAttackMoves);
+            return (mPlayer == Player.Black) ? blackPawnPotencialAttackMoves : whitePawnPotencialAttackMoves;
         }
 
         private void AllowedMovesWhenItGoingForward(ObservableCollection<IField> fieldsList, Point[] potencialForwardMoves)
@@ -147,10 +147,28 @@ namespace ChessGame.Core
                 {
                     if (enPassantPawn.Passing)
                     {
+                        pawnToCaptureEnPassant = fieldsList.FirstOrDefault(x => x.RowIndex == potencialEnPassantMoves[i].RowIndex && x.ColumnIndex == potencialEnPassantMoves[i].ColumnIndex);
+
                         fieldsList.Where(x => x.RowIndex == potencialAttackMoves[i].RowIndex && x.ColumnIndex == potencialAttackMoves[i].ColumnIndex)
-                                  .Select(x => x.FieldState = FieldState.MoveState)
-                                  .FirstOrDefault();
+                        .Select(x => x.FieldState = FieldState.MoveState)
+                        .FirstOrDefault();
+
+                        isEnPassantPossible = true;
                     }
+                }
+            }
+        }
+
+        private void EnPassantMove(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
+        {
+            Point[] potencialAttackMoves = PotencialAttackMoves(clickedFigure);
+
+            for (int i = 0; i < 2; i++)
+            {
+                if (clickedField == allowedMoves.FirstOrDefault(x => x.RowIndex == potencialAttackMoves[i].RowIndex && x.ColumnIndex == potencialAttackMoves[i].ColumnIndex))
+                {
+                    pawnToCaptureEnPassant.CurrentFigure = null;
+                    pawnToCaptureEnPassant.FigureImageSource = defaultImageSource;
                 }
             }
         }
@@ -169,10 +187,20 @@ namespace ChessGame.Core
                     mIsMoved = true;
                 }
 
+                if(isEnPassantPossible)
+                {
+                    EnPassantMove(clickedFigure, clickedField, allowedMoves);
+                }
+
                 //en passant
                 if (clickedField.RowIndex == clickedFigure.RowIndex + 2 ||
                    clickedField.RowIndex == clickedFigure.RowIndex - 2)
+                {
                     Passing = true;
+                }
+
+                pawnToCaptureEnPassant = null;
+                isEnPassantPossible = false;
 
                 return true;
             }

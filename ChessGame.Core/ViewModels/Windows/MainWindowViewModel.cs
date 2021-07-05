@@ -30,10 +30,12 @@ namespace ChessGame.Core
         }
         public void Click(object obj)
         {
-            var fieldVM = obj as IField;
+            var clickedField = obj as IField;
 
-            mPieceInteractionManager.Container(fieldVM, FieldsList);
-            mFieldHightlightManager.Container(fieldVM, FieldsList);
+            mPieceInteractionManager.Container(clickedField, FieldsList);
+            mFieldHightlightManager.Container(clickedField, FieldsList);
+
+            //Debug.WriteLine(clickedField.CurrentFigure?.IsPinned);
         }
     }
 }
