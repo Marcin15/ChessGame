@@ -12,13 +12,13 @@ namespace ChessGame
         {
             SolidColorBrush defaultColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#cccccc");
             SolidColorBrush clickedColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#abbeff");
-            SolidColorBrush moveColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#123123");
+            SolidColorBrush moveColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#eb4034");
 
             FieldState state = (FieldState)value;
             if (state == FieldState.ClickedState)
                 return clickedColor;
-            //else if (state == FieldState.MoveState)
-            //    return moveColor;
+            else if (state == FieldState.MateState)
+                return moveColor;
             else
                 return defaultColor;
         }

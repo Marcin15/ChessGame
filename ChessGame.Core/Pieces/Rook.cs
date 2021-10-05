@@ -8,16 +8,14 @@ namespace ChessGame.Core
 {
     public class Rook : Piece
     {
-        private Player mPlayer;
-        private Uri mImageUri;
+        private readonly Uri mImageUri;
         public bool IsMoved { get; set; } = false;
 
-        private readonly Uri BlackFigureImageSource = new Uri(@"/Images/RookBlack.png", UriKind.Relative);
-        private readonly Uri WhiteFigureImageSource = new Uri(@"/Images/RookWhite.png", UriKind.Relative);
+        private readonly Uri BlackFigureImageSource = new(@"/Images/RookBlack.png", UriKind.Relative);
+        private readonly Uri WhiteFigureImageSource = new(@"/Images/RookWhite.png", UriKind.Relative);
 
         public Rook(Player player, IField clickedField) : base(player, clickedField)
         {
-            mPlayer = player;
             if (player == Player.Black)
                 mImageUri = BlackFigureImageSource;
             else if (player == Player.White)
@@ -28,7 +26,7 @@ namespace ChessGame.Core
 
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
-            List<Point> potentialMovesList = new List<Point>();
+            List<Point> potentialMovesList = new();
 
             for (int i = 0; i < 4; i++)
             {
@@ -51,7 +49,9 @@ namespace ChessGame.Core
                     }
                 }
 
-                base.GetAllowedMoves(potentialMovesList, clickedFigure, fieldsList);
+                base.GetAllowedMoves(potentialMovesList, fieldsList);
+
+                potentialMovesList.Clear();
             }
         }
 

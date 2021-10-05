@@ -7,8 +7,8 @@ namespace ChessGame.Core
     public class Pawn : Piece
     {
         private bool mIsMoved = false;
-        private Player mPlayer;
-        private Uri mImageUri;
+        private readonly Player mPlayer;
+        private readonly Uri mImageUri;
 
         private IField pawnToCaptureEnPassant;
         private bool isEnPassantPossible = false;
@@ -20,6 +20,7 @@ namespace ChessGame.Core
         public Pawn(Player player, IField clickedField) : base(player, clickedField)
         {
             mPlayer = player;
+
             if (player == Player.Black)
                 mImageUri = BlackFigureImageSource;
             else if (player == Player.White)
@@ -29,6 +30,7 @@ namespace ChessGame.Core
         }
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
+            AllowedMovesCounter = 0;
             Point[] potencialEnPassantMoves =
             {
                 new Point(clickedFigure.RowIndex, clickedFigure.ColumnIndex + 1),
@@ -79,8 +81,7 @@ namespace ChessGame.Core
             var checkCondition = true;
             for (int i = 0; i < 2; i++)
             {
-                var moveField = fieldsList.Where(x => x.RowIndex == potencialForwardMoves[i].RowIndex && x.ColumnIndex == potencialForwardMoves[i].ColumnIndex)
-                                          .FirstOrDefault();
+                var moveField = fieldsList.FirstOrDefault(x => x.RowIndex == potencialForwardMoves[i].RowIndex && x.ColumnIndex == potencialForwardMoves[i].ColumnIndex);
 
                 if (GameInfo.Check)
                     checkCondition = moveField is not null && moveField.IsUnderCheck;
@@ -100,6 +101,7 @@ namespace ChessGame.Core
 
                     if (mIsMoved)
                         break;
+                    AllowedMovesCounter++;
                 }
             }
         }
@@ -109,8 +111,7 @@ namespace ChessGame.Core
             var checkCondition = true;
             for (int i = 0; i < 2; i++)
             {
-                var attackField = fieldsList.Where(x => x.RowIndex == potencialAttackMoves[i].RowIndex && x.ColumnIndex == potencialAttackMoves[i].ColumnIndex)
-                                            .FirstOrDefault();
+                var attackField = fieldsList.FirstOrDefault(x => x.RowIndex == potencialAttackMoves[i].RowIndex && x.ColumnIndex == potencialAttackMoves[i].ColumnIndex);
 
                 if (GameInfo.Check)
                     checkCondition = attackField is not null && attackField.IsUnderCheck;
@@ -131,6 +132,7 @@ namespace ChessGame.Core
                             }
                         }
                     }
+                    AllowedMovesCounter++;
                 }
             }
         }
@@ -139,8 +141,7 @@ namespace ChessGame.Core
         {
             for (int i = 0; i < 2; i++)
             {
-                var enPassantField = fieldsList.Where(x => x.RowIndex == potencialEnPassantMoves[i].RowIndex && x.ColumnIndex == potencialEnPassantMoves[i].ColumnIndex)
-                                               .FirstOrDefault();
+                var enPassantField = fieldsList.FirstOrDefault(x => x.RowIndex == potencialEnPassantMoves[i].RowIndex && x.ColumnIndex == potencialEnPassantMoves[i].ColumnIndex);
 
                 if (enPassantField is not null && 
                     enPassantField.CurrentFigure is Pawn enPassantPawn)
@@ -154,6 +155,7 @@ namespace ChessGame.Core
                         .FirstOrDefault();
 
                         isEnPassantPossible = true;
+                        AllowedMovesCounter++;
                     }
                 }
             }

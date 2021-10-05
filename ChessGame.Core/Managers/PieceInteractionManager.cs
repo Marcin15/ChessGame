@@ -8,10 +8,11 @@ namespace ChessGame.Core
     {
         private IField mOldClickedFigure;
         private readonly IAttackMechanicContainer mAttackMechanicContainer;
-
-        public PieceInteractionManager(IAttackMechanicContainer attackMechanicContainer)
+        private readonly ICheckMateChecker mCheckMateChecker;
+        public PieceInteractionManager(IAttackMechanicContainer attackMechanicContainer, ICheckMateChecker checkMateChecker)
         {
             mAttackMechanicContainer = attackMechanicContainer;
+            mCheckMateChecker = checkMateChecker;
         }
         public void Container(IField clickedField, ObservableCollection<IField> fieldsList)
         {
@@ -20,6 +21,7 @@ namespace ChessGame.Core
             {
                 mAttackMechanicContainer.Container(fieldsList);
                 SetPawnsPassingFlagToFalse(fieldsList);
+                mCheckMateChecker.Check(fieldsList);
                 ChangePlayer();
             }
         }

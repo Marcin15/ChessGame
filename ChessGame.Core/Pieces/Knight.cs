@@ -7,14 +7,12 @@ namespace ChessGame.Core
 {
     public class Knight : Piece
     {
-        private Player mPlayer;
-        private Uri mImageUri;
+        private readonly Uri mImageUri;
 
-        private readonly Uri BlackFigureImageSource = new Uri(@"/Images/KnightBlack.png", UriKind.Relative);
-        private readonly Uri WhiteFigureImageSource = new Uri(@"/Images/KnightWhite.png", UriKind.Relative);
+        private readonly Uri BlackFigureImageSource = new(@"/Images/KnightBlack.png", UriKind.Relative);
+        private readonly Uri WhiteFigureImageSource = new(@"/Images/KnightWhite.png", UriKind.Relative);
         public Knight(Player player, IField clickedField) : base(player, clickedField)
         {
-            mPlayer = player;
             if (player == Player.Black)
                 mImageUri = BlackFigureImageSource;
             else if (player == Player.White)
@@ -36,7 +34,7 @@ namespace ChessGame.Core
                 new Point(clickedFigure.RowIndex - 2, clickedFigure.ColumnIndex - 1), //7
                 new Point(clickedFigure.RowIndex - 2, clickedFigure.ColumnIndex + 1), //8
             };
-            base.GetAllowedMoves(potentialMovesList, clickedFigure, fieldsList, true);
+            base.GetAllowedMoves(potentialMovesList, fieldsList, true);
         }
         public override bool Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
         {

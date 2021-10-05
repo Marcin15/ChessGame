@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace ChessGame.Core
 {
@@ -25,19 +23,19 @@ namespace ChessGame.Core
                 {
                     case "Rook":
                         mFactory = new RookFactory(fields.Where(x => x.RowIndex == initialLocalizations[i].Row && x.ColumnIndex == initialLocalizations[i].Column).FirstOrDefault(), initialLocalizations[i].Player);
-                        //figure = mFactory.GetFigure();
+                        figure = mFactory.GetFigure();
                         break;
                     case "Knight":
                         mFactory = new KnightFactory(fields.Where(x => x.RowIndex == initialLocalizations[i].Row && x.ColumnIndex == initialLocalizations[i].Column).FirstOrDefault(), initialLocalizations[i].Player);
-                        //figure = mFactory.GetFigure();
+                        figure = mFactory.GetFigure();
                         break;
                     case "Bishop":
                         mFactory = new BishopFactory(fields.Where(x => x.RowIndex == initialLocalizations[i].Row && x.ColumnIndex == initialLocalizations[i].Column).FirstOrDefault(), initialLocalizations[i].Player);
-                        //figure = mFactory.GetFigure();
+                        figure = mFactory.GetFigure();
                         break;
                     case "Queen":
                         mFactory = new QueenFactory(fields.Where(x => x.RowIndex == initialLocalizations[i].Row && x.ColumnIndex == initialLocalizations[i].Column).FirstOrDefault(), initialLocalizations[i].Player);
-                        //figure = mFactory.GetFigure();
+                        figure = mFactory.GetFigure();
                         break;
                     case "King":
                         mFactory = new KingFactory(fields.Where(x => x.RowIndex == initialLocalizations[i].Row && x.ColumnIndex == initialLocalizations[i].Column).FirstOrDefault(), initialLocalizations[i].Player);

@@ -34,8 +34,6 @@ namespace ChessGame.Core
 
             mPieceInteractionManager.Container(clickedField, FieldsList);
             mFieldHightlightManager.Container(clickedField, FieldsList);
-
-            //Debug.WriteLine(clickedField.CurrentFigure?.IsPinned);
         }
     }
 }

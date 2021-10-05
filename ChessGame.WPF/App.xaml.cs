@@ -58,6 +58,8 @@ namespace ChessGame.WPF
 
             services.AddSingleton<IInitialLocalizationOfFigures, InitialLocalizationOfFigures>();
 
+            services.AddSingleton<ICheckMateChecker, CheckMateChecker>();
+
             return services.BuildServiceProvider();
         }
     }

@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ChessGame.Core
 {
     public abstract class Piece
     {
-        protected Uri defaultImageSource = new Uri(@"/Images/Default.png", UriKind.Relative);
+        protected Uri defaultImageSource = new(@"/Images/Default.png", UriKind.Relative);
         public bool IsPinned { get; set; } = false;
         public Player Player { get; private set; }
+        public int AllowedMovesCounter { get; protected set; } = 0;
+
         public Piece(Player player, IField clickedField)
         {
             this.Player = player;
@@ -29,15 +30,15 @@ namespace ChessGame.Core
             return false;
         }
 
-        protected void GetAllowedMoves(List<Point> potentialMovesList, IField clickedFigure, ObservableCollection<IField> fieldsList)
+        protected void GetAllowedMoves(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList)
         {
+            AllowedMovesCounter = 0;
             var checkCondition = true;
 
             foreach (var point in potentialMovesList)
             {
                 var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
                                           .FirstOrDefault();
-
 
                 if (moveField is not null)
                 {
@@ -47,17 +48,21 @@ namespace ChessGame.Core
                         checkCondition = moveField.IsUnderPin;
 
                     if (checkCondition)
-                        if (CheckIfMoveIsLegal(clickedFigure, fieldsList, moveField))
+                    {
+                        if (CheckIfMoveIsLegal(fieldsList, moveField))
                         {
                             potentialMovesList.Clear();
                             break;
                         }
+                    }
+
                 }
             }
         }
 
-        protected void GetAllowedMoves(List<Point> potentialMovesList, IField clickedFigure, ObservableCollection<IField> fieldsList, bool isKingOrKnight, bool isKing = false)
+        protected void GetAllowedMoves(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList, bool isKingOrKnight, bool isKing = false)
         {
+            AllowedMovesCounter = 0;
             var checkCondition = true;
             var condition = false;
 
@@ -70,7 +75,7 @@ namespace ChessGame.Core
 
                 if (condition)
                 {
-                    if(!isKing)
+                    if (!isKing)
                     {
                         if (GameInfo.Check)
                             checkCondition = moveField.IsUnderCheck;
@@ -79,7 +84,7 @@ namespace ChessGame.Core
                     }
 
                     if (checkCondition)
-                        if (CheckIfMoveIsLegal(clickedFigure, fieldsList, moveField))
+                        if (CheckIfMoveIsLegal(fieldsList, moveField))
                         {
                             continue;
                         }
@@ -87,15 +92,20 @@ namespace ChessGame.Core
             }
         }
 
-        private bool CheckIfMoveIsLegal(IField clickedFigure, ObservableCollection<IField> fieldsList, IField moveField)
+        private bool CheckIfMoveIsLegal(ObservableCollection<IField> fieldsList, IField moveField)
         {
             if (moveField.CurrentFigure == null)
+            {
                 fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
                           .Select(x => x.FieldState = FieldState.MoveState)
                           .FirstOrDefault();
+
+                AllowedMovesCounter++;
+            }
+
             else
             {
-                if (moveField.CurrentFigure.Player == clickedFigure.CurrentFigure.Player)
+                if (moveField.CurrentFigure.Player == this.Player)
                     return true;
 
                 else
@@ -104,6 +114,7 @@ namespace ChessGame.Core
                               .Select(x => x.FieldState = FieldState.CaptureState)
                               .FirstOrDefault();
 
+                    AllowedMovesCounter++;
                     return true;
                 }
             }

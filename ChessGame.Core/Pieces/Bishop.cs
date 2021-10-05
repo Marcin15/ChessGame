@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Diagnostics;
 
 namespace ChessGame.Core
 {
     public class Bishop : Piece
     {
-        private Player mPlayer;
-        private Uri mImageUri;
+        private readonly Uri mImageUri;
 
-        private readonly Uri BlackFigureImageSource = new Uri(@"/Images/BishopBlack.png", UriKind.Relative);
-        private readonly Uri WhiteFigureImageSource = new Uri(@"/Images/BishopWhite.png", UriKind.Relative);
+        private readonly Uri BlackFigureImageSource = new(@"/Images/BishopBlack.png", UriKind.Relative);
+        private readonly Uri WhiteFigureImageSource = new(@"/Images/BishopWhite.png", UriKind.Relative);
         public Bishop(Player player, IField clickedField) : base(player, clickedField)
         {
-            mPlayer = player;
             if (player == Player.Black)
                 mImageUri = BlackFigureImageSource;
             else if (player == Player.White)
@@ -25,7 +23,7 @@ namespace ChessGame.Core
 
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
-            List<Point> potentialMovesList = new List<Point>();
+            List<Point> potentialMovesList = new();
 
             for (int i = 0; i < 4; i++)
             {
@@ -47,7 +45,9 @@ namespace ChessGame.Core
                             break;
                     }
                 }
-                base.GetAllowedMoves(potentialMovesList, clickedFigure, fieldsList);
+                base.GetAllowedMoves(potentialMovesList, fieldsList);
+
+                potentialMovesList.Clear();
             }
         }
 

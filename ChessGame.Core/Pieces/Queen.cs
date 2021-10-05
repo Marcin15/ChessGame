@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace ChessGame.Core
 {
     public class Queen : Piece
     {
-        private Player mPlayer;
-        private Uri mImageUri;
+        private readonly Uri mImageUri;
 
-        private readonly Uri BlackFigureImageSource = new Uri(@"/Images/QueenBlack.png", UriKind.Relative);
-        private readonly Uri WhiteFigureImageSource = new Uri(@"/Images/QueenWhite.png", UriKind.Relative);
+        private readonly Uri BlackFigureImageSource = new(@"/Images/QueenBlack.png", UriKind.Relative);
+        private readonly Uri WhiteFigureImageSource = new(@"/Images/QueenWhite.png", UriKind.Relative);
 
         public Queen(Player player, IField clickedField) : base(player, clickedField)
         {
-            mPlayer = player;
             if (player == Player.Black)
                 mImageUri = BlackFigureImageSource;
             else if (player == Player.White)
@@ -24,8 +23,8 @@ namespace ChessGame.Core
         }
 
         public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
-        {
-            List<Point> potentialMovesList = new List<Point>();
+        { 
+            List<Point> potentialMovesList = new();
 
             for (int i = 0; i < 8; i++)
             {
@@ -59,7 +58,9 @@ namespace ChessGame.Core
                             break;
                     }
                 }
-                base.GetAllowedMoves(potentialMovesList, clickedFigure, fieldsList);
+                base.GetAllowedMoves(potentialMovesList, fieldsList);
+
+                potentialMovesList.Clear();
             }
         }
         public override bool Move(IField clickedFigure, IField clickedField, ObservableCollection<IField> allowedMoves)
