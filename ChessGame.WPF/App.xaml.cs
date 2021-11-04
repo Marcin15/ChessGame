@@ -60,6 +60,9 @@ namespace ChessGame.WPF
 
             services.AddSingleton<ICheckMateChecker, CheckMateChecker>();
 
+            services.AddSingleton<IServerConnection, ServerConnection>();
+            services.AddTransient<IDataSender, DataSender>();
+
             return services.BuildServiceProvider();
         }
     }

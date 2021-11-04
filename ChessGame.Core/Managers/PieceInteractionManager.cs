@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 
 namespace ChessGame.Core
 {
@@ -9,12 +10,16 @@ namespace ChessGame.Core
         private IField mOldClickedFigure;
         private readonly IAttackMechanicContainer mAttackMechanicContainer;
         private readonly ICheckMateChecker mCheckMateChecker;
-        public PieceInteractionManager(IAttackMechanicContainer attackMechanicContainer, ICheckMateChecker checkMateChecker)
+        private readonly IDataSender _DataSender;
+        public PieceInteractionManager(IAttackMechanicContainer attackMechanicContainer, 
+                                       ICheckMateChecker checkMateChecker,
+                                       IDataSender dataSender)
         {
             mAttackMechanicContainer = attackMechanicContainer;
             mCheckMateChecker = checkMateChecker;
+            _DataSender = dataSender;
         }
-        public void Container(IField clickedField, ObservableCollection<IField> fieldsList)
+        public void Container(IField clickedField, ObservableCollection<IField> fieldsList, TcpClient client)
         {
             AssignPreviousClickedFigure(clickedField);
             if (MoveFigure(clickedField, fieldsList))
@@ -22,6 +27,8 @@ namespace ChessGame.Core
                 mAttackMechanicContainer.Container(fieldsList);
                 SetPawnsPassingFlagToFalse(fieldsList);
                 mCheckMateChecker.Check(fieldsList);
+                _DataSender.SendData(client, mOldClickedFigure, clickedField);
+                mOldClickedFigure = null;
                 ChangePlayer();
             }
         }
@@ -56,7 +63,6 @@ namespace ChessGame.Core
             {
                 if (mOldClickedFigure.CurrentFigure.Move(mOldClickedFigure, clickedField, fieldsList))
                 {
-                    mOldClickedFigure = null;
                     return true;
                 }
             }

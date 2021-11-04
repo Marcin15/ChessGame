@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:ChessGame"
         xmlns:productViewModels="clr-namespace:ChessGame.Core;assembly=ChessGame.Core"
         mc:Ignorable="d"
-Height="830" Width="800" 
+        Height="830" Width="800" 
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        ResizeMode="CanMinimize">
     <Grid>
         <ItemsControl ItemsSource="{Binding FieldsList}">
             <ItemsControl.ItemsPanel>
