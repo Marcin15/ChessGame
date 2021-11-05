@@ -19,9 +19,8 @@ namespace ChessGame.WPF
         {
             IServiceProvider serviceProvider = CreateServiceProvier();
 
-            var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-
-            mainWindow.Show();
+            var gameConnectionWindow = serviceProvider.GetRequiredService<GameConnectionWindow>();
+            gameConnectionWindow.ShowDialog();
 
             base.OnStartup(e);
         }
@@ -31,8 +30,10 @@ namespace ChessGame.WPF
             IServiceCollection services = new ServiceCollection();
 
             services.AddSingleton<MainWindow>(s => new MainWindow(s.GetRequiredService<MainWindowViewModel>()));
+            services.AddSingleton<GameConnectionWindow>(s => new GameConnectionWindow(s.GetRequiredService<GameConnectionWindowViewModel>()));
 
             services.AddScoped<MainWindowViewModel>();
+            services.AddScoped<GameConnectionWindowViewModel>();
 
             services.AddSingleton<ICollectionMerger, CollectionMerger>();
             services.AddSingleton<IPieceCreatorFactory, PieceCreatorFactory>();
@@ -63,6 +64,9 @@ namespace ChessGame.WPF
             services.AddSingleton<IServerConnection, ServerConnection>();
             services.AddTransient<IDataSender, DataSender>();
 
+            services.AddSingleton<IMessageBoxService, MessageBoxService>();
+            services.AddSingleton<IShowMainWindowService, ShowMainWindowService>();
+            
             return services.BuildServiceProvider();
         }
     }

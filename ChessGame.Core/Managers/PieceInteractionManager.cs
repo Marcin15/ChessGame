@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace ChessGame.Core
 {
@@ -19,7 +17,7 @@ namespace ChessGame.Core
             mCheckMateChecker = checkMateChecker;
             _DataSender = dataSender;
         }
-        public void Container(IField clickedField, ObservableCollection<IField> fieldsList, TcpClient client)
+        public void Container(IField clickedField, ObservableCollection<IField> fieldsList)
         {
             AssignPreviousClickedFigure(clickedField);
             if (MoveFigure(clickedField, fieldsList))
@@ -27,7 +25,7 @@ namespace ChessGame.Core
                 mAttackMechanicContainer.Container(fieldsList);
                 SetPawnsPassingFlagToFalse(fieldsList);
                 mCheckMateChecker.Check(fieldsList);
-                _DataSender.SendData(client, mOldClickedFigure, clickedField);
+                _DataSender.SendData(mOldClickedFigure, clickedField);
                 mOldClickedFigure = null;
                 ChangePlayer();
             }

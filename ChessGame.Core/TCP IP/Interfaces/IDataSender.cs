@@ -4,6 +4,6 @@ namespace ChessGame.Core
 {
     public interface IDataSender
     {
-        void SendData(TcpClient client, IField FromField, IField ToField);
+        void SendData(IField FromField, IField ToField);
     }
 }

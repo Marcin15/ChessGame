@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Net.Sockets;
 using System.Windows.Input;
 
 namespace ChessGame.Core
@@ -11,15 +10,12 @@ namespace ChessGame.Core
         private readonly IPieceCreatorFactory mPieceCreatorFactory;
         private readonly IFieldHightlightManager mFieldHightlightManager;
         private readonly IPieceInteractionManager mPieceInteractionManager;
-        private readonly IServerConnection _ServerConnection;
-
-        private TcpClient _Client;
 
         public ObservableCollection<IField> FieldsList { get; set; }
         public ICommand ClickCommand { get; set; }
-        public MainWindowViewModel(ICollectionMerger collectionMerger, 
-            IPieceCreatorFactory pieceCreatorFactory, 
-            IFieldHightlightManager fieldHightlightManager, 
+        public MainWindowViewModel(ICollectionMerger collectionMerger,
+            IPieceCreatorFactory pieceCreatorFactory,
+            IFieldHightlightManager fieldHightlightManager,
             IPieceInteractionManager pieceInteractionManager,
             IServerConnection serverConnection)
         {
@@ -27,24 +23,21 @@ namespace ChessGame.Core
             mCollectionMerger = collectionMerger;
             mFieldHightlightManager = fieldHightlightManager;
             mPieceInteractionManager = pieceInteractionManager;
-            _ServerConnection = serverConnection;
 
-            Start();
+            OnStartUp();
+        }
+        private void OnStartUp()
+        {
+            FieldsList = new ObservableCollection<IField>(mCollectionMerger.MergeTwoListIntoOne());
+            ClickCommand = new RelayCommand(Click);
+            mPieceCreatorFactory.Create(new List<IField>(FieldsList));
         }
         public void Click(object obj)
         {
             var clickedField = obj as IField;
 
-            mPieceInteractionManager.Container(clickedField, FieldsList, _Client);
+            mPieceInteractionManager.Container(clickedField, FieldsList);
             mFieldHightlightManager.Container(clickedField, FieldsList);
-        }
-
-        private void Start()
-        {
-            FieldsList = new ObservableCollection<IField>(mCollectionMerger.MergeTwoListIntoOne());
-            ClickCommand = new RelayCommand(Click);
-            mPieceCreatorFactory.Create(new List<IField>(FieldsList));
-            _Client = _ServerConnection.ConnectClientToServer();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace ChessGame.Core
         connection:
             try
             {
-                var client = new TcpClient(GetClientIp(), 1302);
+                var client = new TcpClient(TcpClientInstance.ServerIp, 1302);
 
                 if (client is not null)
                 {
@@ -29,16 +29,6 @@ namespace ChessGame.Core
                 Debug.WriteLine(ex.Message);
                 goto connection;
             }
-        }
-
-        private string GetClientIp()
-        {
-            var hostName = Dns.GetHostName();
-            var ipEntry = Dns.GetHostEntry(hostName);
-
-            var clientIp = ipEntry.AddressList.Select(x => x.ToString()).FirstOrDefault(x => x.Length <= 15);
-
-            return clientIp;
         }
     }
 }

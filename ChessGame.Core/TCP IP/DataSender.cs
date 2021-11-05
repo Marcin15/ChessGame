@@ -14,41 +14,26 @@ namespace ChessGame.Core
             _ServerConnection = serverConnection;
         }
 
-        public void SendData(TcpClient client, IField fromField, IField toField)
+        public void SendData(IField fromField, IField toField)
         {
             CreateMoveModel(fromField, toField);
-            if (client is null)
+            if (TcpClientInstance.TcpClient is null)
             {
-                client = _ServerConnection.ConnectClientToServer();
+                TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServer();
             }
 
-            SendMessage(client);
+            SendMessage(TcpClientInstance.TcpClient);
         }
 
         private void SendData()
         {
-            var client = _ServerConnection.ConnectClientToServer();
+            TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServer();
 
-            SendMessage(client);
+            SendMessage(TcpClientInstance.TcpClient);
         }
 
         private void CreateMoveModel(IField fromField, IField toField)
         {
-            //MoveObject = new MoveModel
-            //{
-            //    From = new int[]
-            //    {
-            //        fromField.RowIndex,
-            //        fromField.ColumnIndex
-            //    },
-            //    To = new int[]
-            //    {
-            //        toField.RowIndex,
-            //        toField.ColumnIndex
-            //    }
-            //};
-
-
             MoveObject.From = new int[]
             {
                     fromField.RowIndex,
