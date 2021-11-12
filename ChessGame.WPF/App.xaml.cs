@@ -1,11 +1,6 @@
 ﻿using ChessGame.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace ChessGame.WPF
@@ -32,8 +27,8 @@ namespace ChessGame.WPF
             services.AddSingleton<MainWindow>(s => new MainWindow(s.GetRequiredService<MainWindowViewModel>()));
             services.AddSingleton<GameConnectionWindow>(s => new GameConnectionWindow(s.GetRequiredService<GameConnectionWindowViewModel>()));
 
-            services.AddScoped<MainWindowViewModel>();
-            services.AddScoped<GameConnectionWindowViewModel>();
+            services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<GameConnectionWindowViewModel>();
 
             services.AddSingleton<ICollectionMerger, CollectionMerger>();
             services.AddSingleton<IPieceCreatorFactory, PieceCreatorFactory>();
@@ -63,9 +58,13 @@ namespace ChessGame.WPF
 
             services.AddSingleton<IServerConnection, ServerConnection>();
             services.AddTransient<IDataSender, DataSender>();
+            services.AddTransient<IDataReceiver, DataReceiver>();
 
             services.AddSingleton<IMessageBoxService, MessageBoxService>();
             services.AddSingleton<IShowMainWindowService, ShowMainWindowService>();
+
+            services.AddSingleton<ISerializer, Serializer>();
+            services.AddSingleton<IDeserializer, Deserializer>();
             
             return services.BuildServiceProvider();
         }

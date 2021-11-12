@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ChessGame.Core
@@ -10,6 +12,7 @@ namespace ChessGame.Core
         private readonly IPieceCreatorFactory mPieceCreatorFactory;
         private readonly IFieldHightlightManager mFieldHightlightManager;
         private readonly IPieceInteractionManager mPieceInteractionManager;
+        private readonly IDataReceiver _DataReceiver;
 
         public ObservableCollection<IField> FieldsList { get; set; }
         public ICommand ClickCommand { get; set; }
@@ -17,12 +20,13 @@ namespace ChessGame.Core
             IPieceCreatorFactory pieceCreatorFactory,
             IFieldHightlightManager fieldHightlightManager,
             IPieceInteractionManager pieceInteractionManager,
-            IServerConnection serverConnection)
+            IDataReceiver dataReceiver)
         {
             mPieceCreatorFactory = pieceCreatorFactory;
             mCollectionMerger = collectionMerger;
             mFieldHightlightManager = fieldHightlightManager;
             mPieceInteractionManager = pieceInteractionManager;
+            _DataReceiver = dataReceiver;
 
             OnStartUp();
         }
@@ -36,8 +40,20 @@ namespace ChessGame.Core
         {
             var clickedField = obj as IField;
 
+            //Debug.WriteLine("Start");
+            //Debug.WriteLine($"{clickedField.RowIndex} {clickedField.ColumnIndex}");
+            //Debug.WriteLine("End");
+            //Debug.WriteLine("");
+
             mPieceInteractionManager.Container(clickedField, FieldsList);
             mFieldHightlightManager.Container(clickedField, FieldsList);
+        }
+
+        public void StartReceivingMessages()
+        {
+            var receiveMessage = Task.Factory.StartNew(() => _DataReceiver.ReadMessageAsync(TcpClientInstance.TcpClient, FieldsList));
+
+            Task.WaitAll(receiveMessage);
         }
     }
 }

@@ -8,10 +8,13 @@ namespace ChessGame.Core
     public class DataSender : IDataSender
     {
         private readonly IServerConnection _ServerConnection;
-        private MoveModel MoveObject = new();
-        public DataSender(IServerConnection serverConnection)
+        private readonly ISerializer _Serializer;
+        private readonly MoveModel MoveObject = new();
+        public DataSender(IServerConnection serverConnection,
+                          ISerializer serializer)
         {
             _ServerConnection = serverConnection;
+            _Serializer = serializer;
         }
 
         public void SendData(IField fromField, IField toField)
@@ -36,8 +39,8 @@ namespace ChessGame.Core
         {
             MoveObject.From = new int[]
             {
-                    fromField.RowIndex,
-                    fromField.ColumnIndex
+                fromField.RowIndex,
+                fromField.ColumnIndex
             };
             MoveObject.To = new int[]
             {
@@ -50,7 +53,7 @@ namespace ChessGame.Core
         {
             try
             {
-                string serializedObject = Serializer.Serialize(MoveObject);
+                string serializedObject = _Serializer.Serialize(MoveObject);
                 int byteCount = Encoding.UTF8.GetByteCount(serializedObject);
                 byte[] sendData = new byte[byteCount];
                 sendData = Encoding.UTF8.GetBytes(serializedObject);

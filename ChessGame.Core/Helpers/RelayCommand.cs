@@ -5,12 +5,12 @@ namespace ChessGame
 {
     public class RelayCommand : ICommand
     {
-        private Action<object> mAction;
+        private readonly Action<object> _Action;
         public event EventHandler CanExecuteChanged;
 
         public RelayCommand(Action<object> action)
         {
-            mAction = action;
+            _Action = action;
         }
         public bool CanExecute(object parameter)
         {
@@ -19,7 +19,7 @@ namespace ChessGame
 
         public void Execute(object parameter)
         {
-            mAction(parameter);
+            _Action(parameter);
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 
 namespace ChessGame.Core
@@ -15,14 +13,23 @@ namespace ChessGame.Core
             {
                 var client = new TcpClient(TcpClientInstance.ServerIp, 1302);
 
-                if (client is not null)
-                {
-                    return client;
-                }
-                else
-                {
-                    throw new Exception();
-                }
+                return client is not null ? client : throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                goto connection;
+            }
+        }
+
+        public TcpClient ConnectClientToServer(TcpListener listener)
+        {
+        connection:
+            try
+            {
+                var client = listener.AcceptTcpClient();
+
+                return client is not null ? client : throw new Exception();
             }
             catch (Exception ex)
             {

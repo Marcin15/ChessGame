@@ -5,7 +5,7 @@ namespace ChessGame.Core
 {
     public class PieceInteractionManager : IPieceInteractionManager
     {
-        private IField mOldClickedFigure;
+        private IField _PreviousClickedPiece;
         private readonly IAttackMechanicContainer mAttackMechanicContainer;
         private readonly ICheckMateChecker mCheckMateChecker;
         private readonly IDataSender _DataSender;
@@ -20,13 +20,24 @@ namespace ChessGame.Core
         public void Container(IField clickedField, ObservableCollection<IField> fieldsList)
         {
             AssignPreviousClickedFigure(clickedField);
-            if (MoveFigure(clickedField, fieldsList))
+            if (MoveFigure(_PreviousClickedPiece, clickedField, fieldsList))
             {
                 mAttackMechanicContainer.Container(fieldsList);
                 SetPawnsPassingFlagToFalse(fieldsList);
                 mCheckMateChecker.Check(fieldsList);
-                _DataSender.SendData(mOldClickedFigure, clickedField);
-                mOldClickedFigure = null;
+                _DataSender.SendData(_PreviousClickedPiece, clickedField);
+                _PreviousClickedPiece = null;
+                ChangePlayer();
+            }
+        }
+        
+        public void Container(IField previousClickedPiece, IField clickedField, ObservableCollection<IField> fieldsList)
+        {
+            if (MoveFigure(previousClickedPiece, clickedField, fieldsList))
+            {
+                mAttackMechanicContainer.Container(fieldsList);
+                SetPawnsPassingFlagToFalse(fieldsList);
+                mCheckMateChecker.Check(fieldsList);
                 ChangePlayer();
             }
         }
@@ -37,10 +48,10 @@ namespace ChessGame.Core
         {
             if (clickedField.CurrentFigure is Piece && clickedField.CurrentFigure.Player == GameInfo.CurrentPlayer)
             {
-                mOldClickedFigure = clickedField;
+                _PreviousClickedPiece = clickedField;
             }
             if (clickedField.IsClicked)
-                mOldClickedFigure = null;
+                _PreviousClickedPiece = null;
         }
 
         private void SetPawnsPassingFlagToFalse(ObservableCollection<IField> fieldsList)
@@ -52,14 +63,13 @@ namespace ChessGame.Core
             }
         }
 
-        private bool MoveFigure(IField clickedField, ObservableCollection<IField> fieldsList)
+        private bool MoveFigure(IField previousClickedPiece, IField clickedField, ObservableCollection<IField> fieldsList)
         {
-            if (mOldClickedFigure is not null &&
-                mOldClickedFigure.CurrentFigure is Piece &&
-                clickedField != mOldClickedFigure &&
-                mOldClickedFigure.CurrentFigure.Player == GameInfo.CurrentPlayer)
+            if (previousClickedPiece is not null &&
+                previousClickedPiece.CurrentFigure is Piece &&
+                clickedField != previousClickedPiece )
             {
-                if (mOldClickedFigure.CurrentFigure.Move(mOldClickedFigure, clickedField, fieldsList))
+                if (previousClickedPiece.CurrentFigure.Move(previousClickedPiece, clickedField, fieldsList))
                 {
                     return true;
                 }
@@ -68,3 +78,5 @@ namespace ChessGame.Core
         }
     }
 }
+
+//                previousClickedPiece.CurrentFigure.Player == GameInfo.CurrentPlayer

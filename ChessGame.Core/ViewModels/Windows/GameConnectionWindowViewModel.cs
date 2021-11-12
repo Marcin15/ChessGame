@@ -5,9 +5,10 @@ namespace ChessGame.Core
 {
     public class GameConnectionWindowViewModel : BaseViewModel, ICloseGameConnectionWindowService
     {
-        private readonly IMessageBoxService _MessageBoxService;
         private readonly IServerConnection _ServerConnection;
+        private readonly IMessageBoxService _MessageBoxService;
         private readonly IShowMainWindowService _ShowMainWindow;
+        private readonly MainWindowViewModel _MainWindowViewModel;
         public string ServerIp { get; set; }
         public ICommand ConnectToTheGameClickCommand { get; set; }
         public ICommand HostTheGameClickCommand { get; set; }
@@ -15,11 +16,13 @@ namespace ChessGame.Core
 
         public GameConnectionWindowViewModel(IMessageBoxService messageBoxService,
                                              IServerConnection serverConnection,
-                                             IShowMainWindowService showMainWindow)
+                                             IShowMainWindowService showMainWindow,
+                                             MainWindowViewModel mainWindowViewModel)
         {
-            _MessageBoxService = messageBoxService;
             _ServerConnection = serverConnection;
+            _MessageBoxService = messageBoxService;
             _ShowMainWindow = showMainWindow;
+            _MainWindowViewModel = mainWindowViewModel;
 
             OnStartUp();
         }
@@ -37,6 +40,8 @@ namespace ChessGame.Core
                 TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServer();
                 Close?.Invoke();
                 _ShowMainWindow.Show();
+
+                _MainWindowViewModel.StartReceivingMessages();
             }
             else
             {
@@ -46,7 +51,13 @@ namespace ChessGame.Core
 
         public void HostTheGameClick(object obj)
         {
+            TcpServerInstance.TcpListener = TcpServerInstance.StartServer();
+            TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServer(TcpServerInstance.TcpListener);
 
+            Close?.Invoke();
+            _ShowMainWindow.Show();
+
+            _MainWindowViewModel.StartReceivingMessages();
         }
     }
 }
