@@ -67,6 +67,10 @@ namespace ChessGame.WPF
 
             services.AddSingleton<ISerializer, Serializer>();
             services.AddSingleton<IDeserializer, Deserializer>();
+
+            services.AddSingleton<IServerIpGetter, ServerIpGetter>();
+
+            services.AddSingleton<IIPv4Validator, IPv4Validator>();
             
             return services.BuildServiceProvider();
         }

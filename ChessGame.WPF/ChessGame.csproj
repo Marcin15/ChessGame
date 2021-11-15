@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="copy.png" />
     <None Remove="Images\BishopBlack.png" />
     <None Remove="Images\BishopWhite.png" />
     <None Remove="Images\Default.png" />
@@ -31,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="copy.png" />
     <Resource Include="Images\BishopBlack.png" />
     <Resource Include="Images\BishopWhite.png" />
     <Resource Include="Images\Default.png" />
