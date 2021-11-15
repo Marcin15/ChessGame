@@ -9,7 +9,7 @@ namespace ChessGame.Core
         private readonly IMessageBoxService _MessageBoxService;
         private readonly IShowMainWindowService _ShowMainWindow;
         private readonly MainWindowViewModel _MainWindowViewModel;
-        public string ServerIp { get; set; }
+        public string ServerIp { get; set; } = "172.26.153.33";
         public ICommand ConnectToTheGameClickCommand { get; set; }
         public ICommand HostTheGameClickCommand { get; set; }
         public Action Close { get; set; }

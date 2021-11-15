@@ -37,10 +37,9 @@ namespace ChessGame.Core
                     var previousClickedPiece = fieldsList.FirstOrDefault(x => x.RowIndex == obj.From[0] && x.ColumnIndex == obj.From[1]);
                     var clickedField = fieldsList.FirstOrDefault(x => x.RowIndex == obj.To[0] && x.ColumnIndex == obj.To[1]);
 
-                    previousClickedPiece.FieldState = FieldState.MoveState;
                     clickedField.FieldState = FieldState.MoveState;
 
-                    _PieceInteractionManager.Container(previousClickedPiece, clickedField, fieldsList);
+                    _PieceInteractionManager.Invoke(previousClickedPiece, clickedField, fieldsList);
                 }
                 catch (Exception ex)
                 {

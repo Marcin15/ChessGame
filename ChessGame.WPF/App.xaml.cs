@@ -32,8 +32,10 @@ namespace ChessGame.WPF
 
             services.AddSingleton<ICollectionMerger, CollectionMerger>();
             services.AddSingleton<IPieceCreatorFactory, PieceCreatorFactory>();
+
             services.AddSingleton<IFieldHightlightManager, FieldHightlightManager>();
             services.AddSingleton<IPieceInteractionManager, PieceInteractionManager>();
+            services.AddSingleton<IPieceAllowedMovesManager, PieceAllowedMovesManager>();
 
             services.AddSingleton<IDarkFieldsModel, DarkFieldsModel>();
             services.AddSingleton<ILightFieldsModel, LightFieldsModel>();

@@ -28,7 +28,7 @@ namespace ChessGame.Core
 
             clickedField.FigureImageSource = mImageUri;
         }
-        public override void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList)
+        public override void GetAllowedMovesOfCurrentClickedPiece(IField clickedFigure, ObservableCollection<IField> fieldsList)
         {
             AllowedMovesCounter = 0;
             Point[] potencialEnPassantMoves =

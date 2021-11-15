@@ -22,7 +22,7 @@ namespace ChessGame.Core
             clickedField.CurrentFigure = clickedFigure.CurrentFigure;
             clickedFigure.CurrentFigure = null;
 
-            clickedField.IsClicked = true;
+            clickedField.IsClicked = false;
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -30,64 +30,46 @@ namespace ChessGame.Core
             return false;
         }
 
-        protected void GetAllowedMoves(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList)
+        protected void GetAllowedMoves(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList, bool isKingOrKnight = false, bool isKing = false)
         {
             AllowedMovesCounter = 0;
             var checkCondition = true;
 
             foreach (var point in potentialMovesList)
             {
-                var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
-                                          .FirstOrDefault();
+                var moveField = fieldsList.FirstOrDefault(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex);
 
-                if (moveField is not null)
+                var kingCondition = isKing ? (moveField is not null && !moveField.IsUnderAttack) : true;
+
+                if (moveField is not null && kingCondition)
                 {
-                    if (GameInfo.Check)
-                        checkCondition = moveField.IsUnderCheck;
-                    else if (this.IsPinned)
-                        checkCondition = moveField.IsUnderPin;
-
-                    if (checkCondition)
-                    {
-                        if (CheckIfMoveIsLegal(fieldsList, moveField))
-                        {
-                            potentialMovesList.Clear();
-                            break;
-                        }
-                    }
-
-                }
-            }
-        }
-
-        protected void GetAllowedMoves(List<Point> potentialMovesList, ObservableCollection<IField> fieldsList, bool isKingOrKnight, bool isKing = false)
-        {
-            AllowedMovesCounter = 0;
-            var checkCondition = true;
-            var condition = false;
-
-            foreach (var point in potentialMovesList)
-            {
-                var moveField = fieldsList.Where(x => x.RowIndex == point.RowIndex && x.ColumnIndex == point.ColumnIndex)
-                                          .FirstOrDefault();
-
-                condition = isKing ? (moveField is not null && !moveField.IsUnderAttack) : moveField is not null;
-
-                if (condition)
-                {
-                    if (!isKing)
+                    if(!isKing)
                     {
                         if (GameInfo.Check)
+                        {
                             checkCondition = moveField.IsUnderCheck;
+                        }
                         else if (this.IsPinned)
+                        {
                             checkCondition = moveField.IsUnderPin;
+                        }
                     }
 
                     if (checkCondition)
+                    {
                         if (CheckIfMoveIsLegal(fieldsList, moveField))
                         {
-                            continue;
+                            if(isKingOrKnight)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                return;
+                            }
                         }
+                    }
+
                 }
             }
         }
@@ -102,12 +84,12 @@ namespace ChessGame.Core
 
                 AllowedMovesCounter++;
             }
-
             else
             {
                 if (moveField.CurrentFigure.Player == this.Player)
+                {
                     return true;
-
+                }
                 else
                 {
                     fieldsList.Where(x => x.RowIndex == moveField.RowIndex && x.ColumnIndex == moveField.ColumnIndex)
@@ -122,6 +104,6 @@ namespace ChessGame.Core
             return false;
         }
 
-        public abstract void GetAllowedMovesOfCurrentClickedFigure(IField clickedFigure, ObservableCollection<IField> fieldsList);
+        public abstract void GetAllowedMovesOfCurrentClickedPiece(IField clickedFigure, ObservableCollection<IField> fieldsList);
     }
 }

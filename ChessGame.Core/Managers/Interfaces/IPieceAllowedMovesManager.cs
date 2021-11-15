@@ -2,7 +2,7 @@
 
 namespace ChessGame.Core
 {
-    public interface IFieldHightlightManager
+    public interface IPieceAllowedMovesManager
     {
         void Invoke(IField field, ObservableCollection<IField> fieldsList);
     }

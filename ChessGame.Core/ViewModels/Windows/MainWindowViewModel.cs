@@ -12,6 +12,7 @@ namespace ChessGame.Core
         private readonly IPieceCreatorFactory mPieceCreatorFactory;
         private readonly IFieldHightlightManager mFieldHightlightManager;
         private readonly IPieceInteractionManager mPieceInteractionManager;
+        private readonly IPieceAllowedMovesManager _PieceAllowedMovesManager;
         private readonly IDataReceiver _DataReceiver;
 
         public ObservableCollection<IField> FieldsList { get; set; }
@@ -20,12 +21,14 @@ namespace ChessGame.Core
             IPieceCreatorFactory pieceCreatorFactory,
             IFieldHightlightManager fieldHightlightManager,
             IPieceInteractionManager pieceInteractionManager,
+            IPieceAllowedMovesManager pieceAllowedMovesManager,
             IDataReceiver dataReceiver)
         {
             mPieceCreatorFactory = pieceCreatorFactory;
             mCollectionMerger = collectionMerger;
             mFieldHightlightManager = fieldHightlightManager;
             mPieceInteractionManager = pieceInteractionManager;
+            _PieceAllowedMovesManager = pieceAllowedMovesManager;
             _DataReceiver = dataReceiver;
 
             OnStartUp();
@@ -40,15 +43,12 @@ namespace ChessGame.Core
         {
             var clickedField = obj as IField;
 
-            //Debug.WriteLine("Start");
-            //Debug.WriteLine($"{clickedField.RowIndex} {clickedField.ColumnIndex}");
-            //Debug.WriteLine("End");
-            //Debug.WriteLine("");
+            mFieldHightlightManager.Invoke(clickedField, FieldsList);
+            mPieceInteractionManager.Invoke(clickedField, FieldsList);
+            _PieceAllowedMovesManager.Invoke(clickedField, FieldsList);
 
-            mPieceInteractionManager.Container(clickedField, FieldsList);
-            mFieldHightlightManager.Container(clickedField, FieldsList);
+            Debug.WriteLine(clickedField.FieldState.ToString());
         }
-
         public void StartReceivingMessages()
         {
             var receiveMessage = Task.Factory.StartNew(() => _DataReceiver.ReadMessageAsync(TcpClientInstance.TcpClient, FieldsList));
