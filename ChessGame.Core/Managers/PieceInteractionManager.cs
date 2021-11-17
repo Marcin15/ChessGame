@@ -49,10 +49,10 @@ namespace ChessGame.Core
             {
                 _PreviousClickedPiece = clickedField;
             }
-            if (clickedField.IsClicked)
-            {
-                _PreviousClickedPiece = null;
-            }
+            //if (clickedField.IsClicked)
+            //{
+            //    _PreviousClickedPiece = null;
+            //}
         }
 
         private void SetPawnsPassingFlagToFalse(ObservableCollection<IField> fieldsList)

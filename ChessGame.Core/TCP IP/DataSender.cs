@@ -22,7 +22,7 @@ namespace ChessGame.Core
             CreateMoveModel(fromField, toField);
             if (TcpClientInstance.TcpClient is null)
             {
-                TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServer();
+                TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServerAsync().Result;
             }
 
             SendMessage(TcpClientInstance.TcpClient);
@@ -30,7 +30,7 @@ namespace ChessGame.Core
 
         private void SendData()
         {
-            TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServer();
+            TcpClientInstance.TcpClient = _ServerConnection.ConnectClientToServerAsync().Result;
 
             SendMessage(TcpClientInstance.TcpClient);
         }

@@ -5,34 +5,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChessGame"
         mc:Ignorable="d"
+        xmlns:core="clr-namespace:ChessGame.Core;assembly=ChessGame.Core"
+        d:DataContext="{d:DesignInstance core:GameConnectionWindowViewModel}"
         Title="GameConnection" Height="250" Width="500"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize">
+    <Window.Resources>
+        <local:IsIPv4ValidToTextBoxVisibility x:Key="IsIPv4ValidToTextBoxVisibility"/>
+    </Window.Resources>
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <GroupBox Header="CONNECT TO GAME" Height="150">
-                <StackPanel Orientation="Horizontal" Height="40" >
-                    <Label Content="IP: "/>
-                    <TextBox Text="{Binding ServerIp}" 
-                             Width="300"
-                             FontSize="25"
-                             VerticalContentAlignment="Center"/>
-                    <Button Content="CONNECT"
-                            Command="{Binding DataContext.ConnectToTheGameClickCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                </StackPanel>
+                <Grid VerticalAlignment="Center">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Height="40" >
+                            <Label Content="IP: "/>
+                            <TextBox Text="{Binding ServerIp}"
+                                     Width="300"
+                                     FontSize="25"
+                                     VerticalContentAlignment="Center">
+                            </TextBox>
+
+                            <Button Content="{Binding ConnectBtnContent}"
+                                    Command="{Binding ConnectToTheGameClickCommand}"
+                                    Margin="3 0 0 0"
+                                    Width="100"/>
+                        </StackPanel>
+                        <TextBlock Text="IP Address is not valid" 
+                                   FontSize="18"
+                                   Foreground="Red"
+                                   Margin="0 0 50 0"
+                                   Visibility="{Binding IsIPv4Valid, Converter={StaticResource IsIPv4ValidToTextBoxVisibility}}"/>
+                    </StackPanel>
+                </Grid>
+
             </GroupBox>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Button Content="HOST GAME"
-                        Command="{Binding DataContext.HostTheGameClickCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                <Button Content="{Binding HostBtnContent}"
+                        Command="{Binding HostTheGameClickCommand}"
                         Grid.Column="0">
                 </Button>
                 <Button Grid.Column="1" Width="30"
-                        Command="{Binding DataContext.CopyIpClickCommand, RelativeSource={RelativeSource AncestorType=Window}}">
-                    <Image Source="/copy.png"/>
+                        Command="{Binding CopyIpClickCommand}">
+                    <Image Source="/Images/copy.png"/>
                 </Button>
             </Grid>
         </StackPanel>

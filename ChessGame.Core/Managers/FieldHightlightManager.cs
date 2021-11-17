@@ -13,7 +13,7 @@ namespace ChessGame.Core
         }
         private void IsClickerSwitcher(IField clickedField)
         {
-            if (clickedField.FieldState is not FieldState.MoveState)
+            if (clickedField.FieldState is not (FieldState.MoveState or FieldState.CaptureState))
             {
                 clickedField.IsClicked = !clickedField.IsClicked;
             }

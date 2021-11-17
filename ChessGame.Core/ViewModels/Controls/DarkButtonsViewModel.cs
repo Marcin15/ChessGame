@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ChessGame.Core
 {
     public class DarkButtonsViewModel : BaseViewModel, IField
     {
-        private FieldState mFieldState;
-        private Uri mFigureImageSource;
-        private bool mIsClicked;
+        private FieldState fieldState;
+        private Uri figureImageSource;
+        private bool isClicked;
         public FieldState FieldState
         {
-            get
-            {
-                return mFieldState;
-            }
+            get => fieldState;
             set
             {
-                mFieldState = value;
+                fieldState = value;
                 OnPropertyChanged(nameof(FieldState));
             }
         }
@@ -25,11 +20,11 @@ namespace ChessGame.Core
         {
             get
             {
-                return mFigureImageSource;
+                return figureImageSource;
             }
             set
             {
-                mFigureImageSource = value;
+                figureImageSource = value;
                 OnPropertyChanged(nameof(FigureImageSource));
             }
         }
@@ -37,13 +32,13 @@ namespace ChessGame.Core
         {
             get
             {
-                return mIsClicked;
+                return isClicked;
             }
             set
             {
-                mIsClicked = value;
+                isClicked = value;
 
-                if (mIsClicked)
+                if (isClicked)
                     this.FieldState = FieldState.ClickedState;
                 else
                     this.FieldState = FieldState.EmptyState;
@@ -57,7 +52,7 @@ namespace ChessGame.Core
         public bool IsUnderPin { get; set; } = false;
         public DarkButtonsViewModel()
         {
-            mFigureImageSource = new Uri(@"/Images/Default.png", UriKind.Relative);
+            figureImageSource = new Uri(@"/Images/Default.png", UriKind.Relative);
         }
     }
 }
